@@ -61,7 +61,7 @@ FixDIFF::FixDIFF(LAMMPS *lmp, int narg, char **arg) :
 
   nvalues = 0;
   int iarg = 6;
-  
+
   // identify the diffraction computes to print
   while (iarg < narg) {
     if (strncmp(arg[iarg],"c_",2) == 0){
@@ -78,10 +78,10 @@ FixDIFF::FixDIFF(LAMMPS *lmp, int narg, char **arg) :
   ids = NULL;
   nvalues = 0;
   iarg = 6;
-  
-  double  c_xrd[3];          // Parameters controlling resolution of reciprocal space explored 
+
+  double  c_xrd[3];          // Parameters controlling resolution of reciprocal space explored
   double  c_saed[3];         // Parameters controlling resolution of reciprocal space explored
-    
+
   while (iarg < narg) {
     if (strncmp(arg[iarg],"c_",2) == 0 ) {
 
@@ -94,13 +94,13 @@ FixDIFF::FixDIFF(LAMMPS *lmp, int narg, char **arg) :
       ids = new char[n];
       strcpy(ids,suffix);
       delete [] suffix;
-      
+
       int icompute = modify->find_compute(ids);
-      if (icompute < 0) 
+      if (icompute < 0)
         error->all(FLERR,"Compute ID for fix diffraction does not exist");
-      
+
       Compute *compute = modify->compute[icompute];
-     
+
       // SAED
       if (strcmp(compute->style,"saed") == 0) {
         saedflag = true;
@@ -109,7 +109,7 @@ FixDIFF::FixDIFF(LAMMPS *lmp, int narg, char **arg) :
         compute_saed = (ComputeSAED*) modify->compute[icompute];
         double *saed_var = compute_saed->saed_var;
         lambda_saed   = saed_var[0];
-        Kmax_saed          = saed_var[1];
+        Kmax_saed     = saed_var[1];
         Zone[0]       = saed_var[2];
         Zone[1]       = saed_var[3];
         Zone[2]       = saed_var[4];
@@ -124,15 +124,15 @@ FixDIFF::FixDIFF(LAMMPS *lmp, int narg, char **arg) :
         // Standard error check for compute saed
         if (compute->vector_flag == 0)
             error->all(FLERR,"Fix diffraction compute does not calculate a vector");
-        if (compute->extvector != 0) 
-          error->all(FLERR,"Illegal fix diffraction command"); 
+        if (compute->extvector != 0)
+          error->all(FLERR,"Illegal fix diffraction command");
         nrows = compute->size_vector;
       }
-      
+
       // XRD
       else if (strcmp(compute->style,"xrd") == 0) {
-        xrdflag = true; 
-                
+        xrdflag = true;
+
         // Gather varialbes from specified compute_xrd
         compute_xrd = (ComputeXRD*) modify->compute[icompute];
         double *xrd_var = compute_xrd->xrd_var;
@@ -153,10 +153,10 @@ FixDIFF::FixDIFF(LAMMPS *lmp, int narg, char **arg) :
           error->all(FLERR,"Fix diffraction compute array is accessed out-of-range");
         if (compute->extarray != 0)
           error->all(FLERR,"Illegal fix diffraction command");
-        nrows = compute->size_array_rows;  
-        
-      } else error->all(FLERR,"Illegal fix diffraction command"); 
-      
+        nrows = compute->size_array_rows;
+
+      } else error->all(FLERR,"Illegal fix diffraction command");
+
       nvalues++;
       iarg++;
     } else break;
@@ -205,18 +205,18 @@ FixDIFF::FixDIFF(LAMMPS *lmp, int narg, char **arg) :
   if (periodicity[2]){
     prd_inv[2] = 1 / prd[2];
     ave_inv += prd_inv[2];
-  }      
-  
+  }
+
   ave_inv = ave_inv / (periodicity[0] + periodicity[1] + periodicity[2]);
   if (!periodicity[0]) prd_inv[0] = ave_inv;
   if (!periodicity[1]) prd_inv[1] = ave_inv;
   if (!periodicity[2]) prd_inv[2] = ave_inv;
-    
-    
- 
-  // SAED specific maps 
+
+
+
+  // SAED specific maps
   if (saedflag == true) {
-  
+
     // Zone flag to capture entire recrocal space volume
     if (  (Zone[0] == 0) && (Zone[1] == 0) && (Zone[2] == 0) ){
     } else {
@@ -228,10 +228,10 @@ FixDIFF::FixDIFF(LAMMPS *lmp, int narg, char **arg) :
         Zone[2] = Zone[2] * Rnorm;
     }
 
-    // Use manual_saed mapping of reciprocal lattice 
+    // Use manual_saed mapping of reciprocal lattice
     if (manual_saed) {
       for (int i=0; i<3; i++) prd_inv[i] = 1.0;
-    } 
+    }
 
     // Find integer dimensions of the reciprocal lattice box bounds
     if ( (Zone[0] == 0) && (Zone[1] == 0) && (Zone[2] == 0) ){
@@ -239,13 +239,13 @@ FixDIFF::FixDIFF(LAMMPS *lmp, int narg, char **arg) :
         dK_saed[i] = prd_inv[i]*c_saed[i];
         Knmax_saed[i] = ceil(Kmax_saed / dK_saed[i]);
         Knmin_saed[i] = -Knmax_saed[i];
-      } 
+      }
     } else {
 
       for (int i=0; i<3; i++) {
         Knmax_saed[i] = -10000;
         Knmin_saed[i] =  10000;
-      }       
+      }
       double dinv2 = 0.0;
       double r = 0.0;
       double K[3];
@@ -253,8 +253,8 @@ FixDIFF::FixDIFF(LAMMPS *lmp, int narg, char **arg) :
       for (int i=0; i<3; i++) {
         dK_saed[i] = prd_inv[i]*c_saed[i];
         Ksearch[i] = ceil(Kmax_saed / dK_saed[i]);
-      } 
-  
+      }
+
       for (int k = -Ksearch[2]; k <= Ksearch[2]; k++) {
         for (int j = -Ksearch[1]; j <= Ksearch[1]; j++) {
           for (int i = -Ksearch[0]; i <= Ksearch[0]; i++) {
@@ -265,21 +265,21 @@ FixDIFF::FixDIFF(LAMMPS *lmp, int narg, char **arg) :
             if (dinv2 < Kmax_saed * Kmax_saed) {
               r = 0.0;
               for (int m=0; m<3; m++) r += pow(K[m] - Zone[m],2.0);
-              r = sqrt(r);     
+              r = sqrt(r);
               if  ( (r >  (R_Ewald - dR_Ewald) ) && (r < (R_Ewald + dR_Ewald) ) ){
                 if ( i < Knmin_saed[0] ) Knmin_saed[0] = i;
                 if ( j < Knmin_saed[1] ) Knmin_saed[1] = j;
-                if ( k < Knmin_saed[2] ) Knmin_saed[2] = k;                
+                if ( k < Knmin_saed[2] ) Knmin_saed[2] = k;
                 if ( i > Knmax_saed[0] ) Knmax_saed[0] = i;
                 if ( j > Knmax_saed[1] ) Knmax_saed[1] = j;
-                if ( k > Knmax_saed[2] ) Knmax_saed[2] = k; 
+                if ( k > Knmax_saed[2] ) Knmax_saed[2] = k;
               }
             }
-          } 
+          }
         }
-      } 
+      }
     }
-    
+
     if ( vtkflag == true ) {
       // Finding dimensions for vtk files
       for (int i=0; i<3; i++) {
@@ -289,12 +289,12 @@ FixDIFF::FixDIFF(LAMMPS *lmp, int narg, char **arg) :
       }
     }
   }
-  
-  // XRD specific maps 
+
+  // XRD specific maps
   if (xrdflag == true) {
-    
+
     Kmax_xrd = 2 * sin(Max2Theta) / lambda_xrd;
-    
+
     // Use manual mapping of reciprocal lattice
     if (manual_xrd) {
       for (int i=0; i<3; i++)
@@ -365,7 +365,7 @@ void FixDIFF::init()
 {
   // set current indices for all computes,fixes,variables
 
- 
+
   int icompute = modify->find_compute(ids);
   if (icompute < 0)
     error->all(FLERR,"Compute ID for fix diffraction does not exist");
@@ -406,7 +406,7 @@ void FixDIFF::invoke_vector(bigint ntimestep)
   int icompute = modify->find_compute(ids);
   if (icompute < 0)
     error->all(FLERR,"Compute ID for fix diffraction does not exist");
- 
+
   if (irepeat == 0)
     for (int i = 0; i < nrows; i++)
        vector[i] = 0.0;
@@ -419,17 +419,17 @@ void FixDIFF::invoke_vector(bigint ntimestep)
   Compute *compute = modify->compute[icompute];
 
   if (saedflag == true) {
-  
+
     if (!(compute->invoked_flag & INVOKED_VECTOR)) {
       compute->compute_vector();
       compute->invoked_flag |= INVOKED_VECTOR;
     }
-    
+
     double *cvector = compute->vector;
     for (int i = 0; i < nrows; i++)
       vector[i] = cvector[i];
   }
-      
+
   if (xrdflag == true) {
     if (!(compute->invoked_flag & INVOKED_ARRAY)) {
       compute->compute_array();
@@ -440,7 +440,7 @@ void FixDIFF::invoke_vector(bigint ntimestep)
     for (int i = 0; i < nrows; i++)
       vector[i] = carray[i][icol];
   }
-    
+
   // done if irepeat < nrepeat
   // else reset irepeat and nvalid
 
@@ -476,7 +476,7 @@ void FixDIFF::invoke_vector(bigint ntimestep)
       vector_total[i] += vector[i];
       if (window_limit) vector_total[i] -= vector_list[iwindow][i];
         vector_list[iwindow][i] = vector[i];
-    } 
+    }
     iwindow++;
     if (iwindow == nwindow) {
       iwindow = 0;
@@ -485,13 +485,13 @@ void FixDIFF::invoke_vector(bigint ntimestep)
     if (window_limit) norm = nwindow;
     else norm = iwindow;
   }
- 
+
   // Writing to file
   // Index files using timestep or by output count
   int indexP;
   if (steptime == true) indexP = ntimestep;
   else indexP = nOutput;
-      
+
   // XYZ format initializations
   if (xyzflag && me == 0) {
     // Iterate filenames for multiple snapshots
@@ -505,12 +505,12 @@ void FixDIFF::invoke_vector(bigint ntimestep)
       sprintf(str,"Cannot open fix diffraction-xyz file %s",nName);
       error->one(FLERR,str);
     }
-  }  
+  }
 
   // VTK format initializations
   if (vtkflag && me == 0) {
     // Iterate filenames for multiple snapshots
-    if ( nOutput > 0 ) fclose(fp_vtk);  
+    if ( nOutput > 0 ) fclose(fp_vtk);
     fp_vtk = NULL;
     char nName [128];
     sprintf(nName,"%s.%d.vtk",filename,indexP);
@@ -524,7 +524,7 @@ void FixDIFF::invoke_vector(bigint ntimestep)
 
   // XYZ format for SAED
   if (fp_xyz && saedflag && me == 0) {
- 
+
     // Print header information
     fprintf(fp_xyz,"#LAMBDA %g\n", lambda_saed);
     fprintf(fp_xyz,"#ASPECT_RATIO %g %g %g\n", dK_saed[0], dK_saed[1], dK_saed[2]);
@@ -537,7 +537,7 @@ void FixDIFF::invoke_vector(bigint ntimestep)
     double dinv2 = 0.0;
     double r = 0.0;
     double K[3];
-    
+
     if ( (Threshold > 0)) {
       fprintf(fp_xyz,"#THRESHOLD %g\n", Threshold);
       // Zone flag to capture entire reciprocal space volume
@@ -553,7 +553,7 @@ void FixDIFF::invoke_vector(bigint ntimestep)
                 if ( (vector_total[NROW1]/norm >= Threshold ))
                   fprintf(fp_xyz,"%g %g %g %g\n",K[0],K[1],K[2],vector_total[NROW1]/norm);
                 NROW1++;
-              } 
+              }
             }
           }
         }
@@ -571,9 +571,9 @@ void FixDIFF::invoke_vector(bigint ntimestep)
                 r = sqrt(r);
                 if  ( (r >  (R_Ewald - dR_Ewald) ) && (r < (R_Ewald + dR_Ewald) ) ){
                   NROW1++;
-                  if ( (vector_total[NROW1]/norm >= Threshold ))              
+                  if ( (vector_total[NROW1]/norm >= Threshold ))
                     fprintf(fp_xyz,"%g %g %g %g\n",K[0],K[1],K[2],vector_total[NROW1]/norm);
-                } 
+                }
               }
             }
           }
@@ -619,10 +619,10 @@ void FixDIFF::invoke_vector(bigint ntimestep)
       }
     }
   } // END - XYZ format for SAED
-  
+
   // XYZ format for XRD
   if (fp_xyz && xrdflag && me == 0) {
-   
+
     // Header information with relp spacing
     fprintf(fp_xyz,"#LAMBDA %g\n", lambda_xrd);
     fprintf(fp_xyz,"#ASPECT_RATIO %g %g %g\n", dK_xrd[0], dK_xrd[1], dK_xrd[2]);
@@ -634,7 +634,7 @@ void FixDIFF::invoke_vector(bigint ntimestep)
     double dinv2 = 0.0;
     double K[3];
     if ( (Threshold > 0)) {
-      fprintf(fp_xyz,"#THRESHOLD %g\n", Threshold);    
+      fprintf(fp_xyz,"#THRESHOLD %g\n", Threshold);
       for (int i = -Knmax_xrd[0]; i <= Knmax_xrd[0]; i++) {
         for (int j = -Knmax_xrd[1]; j <= Knmax_xrd[1]; j++) {
           for (int k = -Knmax_xrd[2]; k <= Knmax_xrd[2]; k++) {
@@ -687,7 +687,7 @@ void FixDIFF::invoke_vector(bigint ntimestep)
     fprintf(fp_vtk,"POINT_DATA %d\n",  Dim_saed[0] *  Dim_saed[1] * Dim_saed[2] );
     fprintf(fp_vtk,"SCALARS intensity float\n");
     fprintf(fp_vtk,"LOOKUP_TABLE default\n");
-    
+
     filepos = ftell(fp_vtk);
     if (overwrite) fseek(fp_vtk,filepos,SEEK_SET);
 
@@ -709,7 +709,7 @@ void FixDIFF::invoke_vector(bigint ntimestep)
             if (dinv2 < Kmax_saed * Kmax_saed) {
                fprintf(fp_vtk,"%g\n",vector_total[NROW1]/norm);
                NROW1++;
-            } else 
+            } else
               fprintf(fp_vtk,"%d\n",-1);
           }
         }
@@ -729,16 +729,16 @@ void FixDIFF::invoke_vector(bigint ntimestep)
               if  ( (r >  (R_Ewald - dR_Ewald) ) && (r < (R_Ewald + dR_Ewald) ) ){
                fprintf(fp_vtk,"%g\n",vector_total[NROW1]/norm);
                NROW1++;
-              } else 
+              } else
                 fprintf(fp_vtk,"%d\n",-1);
-            } else 
+            } else
               fprintf(fp_vtk,"%d\n",-1);
           }
         }
       }
     }
   } // END - VTK format for SAED
-  
+
   // VTK format for XRD
   if (fp_vtk && xrdflag && me == 0) {
     fprintf(fp_vtk,"# vtk DataFile Version 3.0 c_%s\n",ids);
@@ -810,7 +810,7 @@ void FixDIFF::options(int narg, char **arg)
   startstep = 0;
   overwrite = 0;
   Threshold = -1;
-  
+
   vtkflag = false;
   xyzflag = false;
   steptime = false;
@@ -831,7 +831,7 @@ void FixDIFF::options(int narg, char **arg)
       if (iarg+2 > narg) error->all(FLERR,"Illegal fix diffraction command");
       if (strcmp(arg[iarg+1],"vtk") == 0) vtkflag=true;
       else if (strcmp(arg[iarg+1],"xyz") == 0) xyzflag=true;
-      else  error->all(FLERR,"Illegal fix diffraction command");     
+      else  error->all(FLERR,"Illegal fix diffraction command");
       iarg += 2;
     } else if (strcmp(arg[iarg],"ave") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal fix diffraction command");
@@ -855,17 +855,17 @@ void FixDIFF::options(int narg, char **arg)
       iarg += 1;
     } else if (strcmp(arg[iarg],"timestep") == 0) {
       steptime = true;
-      iarg += 1;      
+      iarg += 1;
     } else if (strcmp(arg[iarg],"threshold") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal fix diffraction command");
       Threshold = atof(arg[iarg+1]);
-      iarg += 2;      
+      iarg += 2;
     } else error->all(FLERR,"Illegal fix diffraction command");
   }
-  
+
   if ( formatflag == false)
     error->all(FLERR,"Illegal fix diffraction command - define format");
-  
+
 }
 
 /* ----------------------------------------------------------------------

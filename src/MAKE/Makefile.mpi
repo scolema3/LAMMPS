@@ -1,19 +1,20 @@
-# mpi = MPI with its default compiler
+# mac_mpi = Apple laptop, MacPorts Open MPI 1.4.3, gcc 4.8, fftw, jpeg
 
 SHELL = /bin/sh
 
 # ---------------------------------------------------------------------
 # compiler/linker settings
-# specify flags and libraries needed for your compiler
+# generally no need to edit this section
+# unless additional compiler/linker flags or libraries needed for your machine
 
-CC =		mpicxx
-CCFLAGS =	-g -O3 
+CC =	 	/opt/local/bin/mpicxx-openmpi-mp
+CCFLAGS =	-O3 
 SHFLAGS =	-fPIC
 DEPFLAGS =	-M
 
-LINK =		mpicxx
-LINKFLAGS =	-g -O
-LIB = 
+LINK =		/opt/local/bin/mpicxx-openmpi-mp
+LINKFLAGS =	-O3
+LIB =           
 SIZE =		size
 
 ARCHIVE =	ar
@@ -28,7 +29,7 @@ SHLIBFLAGS =	-shared
 # LAMMPS ifdef settings
 # see possible settings in Section 2.2 (step 4) of manual
 
-LMP_INC =	-DLAMMPS_GZIP -DLAMMPS_MEMALIGN=64
+LMP_INC =	-DLAMMPS_GZIP -DLAMMPS_JPEG
 
 # MPI library
 # see discussion in Section 2.2 (step 5) of manual
@@ -39,19 +40,21 @@ LMP_INC =	-DLAMMPS_GZIP -DLAMMPS_MEMALIGN=64
 # PATH = path for MPI library
 # LIB = name of MPI library
 
-MPI_INC =       -DMPICH_SKIP_MPICXX -DOMPI_SKIP_MPICXX=1
-MPI_PATH = 
+MPI_INC =       -DOMPI_SKIP_MPICXX
+MPI_PATH =	
 MPI_LIB =	
 
 # FFT library
-# see discussion in Section 2.2 (step 6) of manual
+# see discussion in Section 2.2 (step 6) of manaul
 # can be left blank to use provided KISS FFT library
 # INC = -DFFT setting, e.g. -DFFT_FFTW, FFT compiler settings
 # PATH = path for FFT library
 # LIB = name of FFT library
 
-FFT_INC =    	
-FFT_PATH = 
+FFTW =	
+
+FFT_INC =      
+FFT_PATH =
 FFT_LIB =	
 
 # JPEG and/or PNG library
@@ -61,9 +64,9 @@ FFT_LIB =
 # PATH = path(s) for JPEG library and/or PNG library
 # LIB = name(s) of JPEG library and/or PNG library
 
-JPG_INC =       
-JPG_PATH = 	
-JPG_LIB =	
+JPG_INC =       -I/opt/local/include
+JPG_PATH = 	-L/opt/local/lib
+JPG_LIB =	-ljpeg
 
 # ---------------------------------------------------------------------
 # build rules and dependencies
@@ -100,7 +103,13 @@ shlib:	$(OBJ) $(EXTRA_LINK_DEPENDS)
 
 # Compilation rules
 
-%.o:%.cpp
+%.o:%.cpp $(EXTRA_CPP_DEPENDS)
+	$(CC) $(CCFLAGS) $(SHFLAGS) $(EXTRA_INC) -c $<
+
+%.d:%.cpp $(EXTRA_CPP_DEPENDS)
+	$(CC) $(CCFLAGS) $(EXTRA_INC) $(DEPFLAGS) $< > $@
+
+%.o:%.cu $(EXTRA_CPP_DEPENDS)
 	$(CC) $(CCFLAGS) $(SHFLAGS) $(EXTRA_INC) -c $<
 
 # Individual dependencies

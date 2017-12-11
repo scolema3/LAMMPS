@@ -1,14 +1,92 @@
-This is a simple example of showing the computation of virutal x-ray 
-and electron diffraction patterns for Ni.  
+This is a simple example that shows the computation of virtual x-ray and electron diffraction patterns for Ni. Various features are being demonstrated in this example as is explained in this document. The values used in this example are chosen to enable quick calculation, and thus are not optimized to produce high fidelity diffraction patterns. Suggestions for techniques to optimize parameters for higher fidelity patterns are included in this document. Additionally, methods for visualizaiton of the 3D diffraction data using VisIT are also included.
 
-In addition to the LAMMPS output, a simple visualizaiton of the electron 
-diffraction data is included.  The visualization was created using the VisIt 
-Open Source visualiztion software develeoped at Larrence Livermore National 
-Laboraatory (https://wci.llnl.gov/simulation/computer-codes/visit/).
+
+## COMPUTES
+
+### X-ray Diffraction
+
+First, looking at the compute for XRD the following command is used:
+
+
+compute         XRD all xrd 1.541838 Ni 2Theta 40 80 c 2 2 2 LP 1 echo
+
+
+Here, the compute named "XRD" is being executed over the group "all" which is LAMMPS default group name for the entire simulation domain. The xrd compute is mimicking x-ray radiation with at wavelength of 1.541838 Angstroms (metal units assigned within input), which is a common spectrum obtained from experimental xrd copper k-alpha sources.  Only one atom type is defined in this example, type 1 is Ni.  Note, if more atom types are included then each type must be assigned a species or NULL (no wild-card support for assigning multiple types). Within the compute, the code matches the given species for each atom type with coefficients that were previously fit for that atom's specific atomic scattering factor (see Colliex).  The coefficients are listed in the compute_xrd_consts.h file and are taken from (Peng). If NULL is chosen, then that type's atomic scattering factor is set to a value of 1. 
+
+This example computes xrd over a two-theta range of 40 to 80 degrees.  The code assumes these values are degrees (not radian) as the maximum range exceeds pi. Note, that ranges starting near 0 (i.e, < 5) degrees start to approach the origin of reciprocal space which can cause issues due to the extremely high diffracting  intensity associated with the transmitted beam as well as its associated relrods.
+
+In the compute xrd, diffraction intensities are calculated on a 3D rectilinear grid in reciprocal space. The "c" parameters control the spacing of this 3D rectilinear grid and by default are set to c/L, where L are the dimensions of the simulation box.  Because the compute xrd uses the default spacing assumption (does not include the "manual" flag), the spacing in this example becomes 2/(15*3.52) = 0.0378788 Angstroms^(-1) in each hkl direction.
+
+This xrd compute applies the Lorentz-Polarization factor during the calculation (LP keyword is 1).  Lorentz-Polorization is a multiplicative factor that is applyied as a funciton of the scattering agle to account for the use of unpolarized X-ray source ans well as a geometric factor for the relative density of reciprocal lattice points.  To turn off this feature, just set LP to zero.
+
+Lastly, extra data are reported to the screen and logfile to track the progress of the compute by using the "echo" flag.  One of the most useful data printed to screen is an intial report on the number of reciprocal lattice points being explored by this compute and their spacing. This is done before intensity calculations begins and can be used to debug if combination of spacing paramaters and 2Theta range request the exploration too many relp.  For this compute, the following initial report is generated showing the exploration of 37,710 points.
+
+
+Setting up compute XRD id:XRD, # of atoms:13500, # of relp:37710
+  Reciprocal point spacing in k1,k2,k3 = 0.0378788 0.0378788 0.0378788
+
+
+
+### Electron Diffraction
+
+Now, lets look at command that computes electron difffraction, SAED:
+
+
+compute         SAED all saed 0.0251 Ni c 0.025 0.025 0.025 manual &
+                Kmax 0.85 Zone 1 0 0 dR_Ewald 0.05 echo
+
+
+Here the compute is also being executed over "all" atoms using a simulated electron wavelength of 0.0251 Angstroms (metal units) that mimics a 200keV e-beam.  Again, only one atom type is modeled in this example, type 1 is Ni.  Similarly the code finds the appropriate coefficients (found in compute_saed_consts.h) to fit the atomic scattering factor.  Note, this is parameterized slightly differently in saed than it was with xrd to account for the different physics caused by electron interactions (see Brown and Fox).
+
+The next few keywords describe the region of reciprocal space over which to compute diffraction intensities. Similar to xrd, electron diffraction intensities are computed over a 3D rectilinear grid.  The spacing of these relp are defined directly by c paramaters because the "manual" keyword is invoked, e.g. in this example the spacing along each hkl direction is 0.025 Angstrom^(-1). Next, the keyword "Kmax" sets the maximum distance from the origin of reciprocal space; its values depends on how many higher order hkl reflections are desired.  In this example, the value of 0.85 Angstroms^(-1) is used.  By using the "Zone" keyword, this example seeks only to compute the intensity data associated with the [1 0 0] zone axis.  It's important to note, that the [1 0 0] axis is in reference to the simulation box itself, i.e. the x-box direction.  By using the "Zone" keyword, the size of the saed compute is extensively reduced because only values lying near the Ewald sphere associated with the assigned zone are considered.  Specificially, when using the "Zone" keywords, only relps located within +/- dR_Ewald/2 from the Ewald sphere are explored.  To ensure sufficent coverage when using the "Zone" keyword, the dR_Ewald value should be chosen 2-4x greater than the relp spacing.  In the example, dR_Ewald is set 0.05 Angtsroms^(-1).
+
+Lastly, extra data are reported to the screen and logfile to track the progress of the compute by using the "echo" flag.  Again, one can use the intial report from the compute to debug if too many relp are explored due to the keywords paramaters and flags that impact this reciprcaol space region -- "c", "manual", "Kmax", "Zone", and "dR_Ewald".  The values used in this example explore 7,225 reciprocal lattice points as shown in the initial compute report found in the logfile.
+
+
+Setting up compute SAED id:SAED, # of atoms:13500, # of relp:7225
+  Reciprocal point spacing in k1,k2,k3 = 0.025 0.025 0.025
+
+
+## FIXES
+
+Two fixes are used to intiate the compute for x-ray and electron diffraction and to write the appropriate diffraction data to file: fix diffraction & fix ave/histo/weight.  Both are based on simular fixes that report time averaged simulation data. Fix diffraction writes out the computed three dimensional diffraction data in either xyz or vtk formats.  Fix ave/histo/weight reduces the three dimensional diffraction data into a 1D line profile to mimic traditional powder diffraction techniques.  Various options used in the example are discussed below:
+
+
+fix             1 all diffraction 1 1 1 c_XRD format xyz format vtk threshold 10 file $A_XRD timestep
+fix             2 all diffraction 1 1 1 c_SAED format xyz format vtk threshold 10 file $A_SAED
+
+
+In these two fixes, x-ray and electron 3D diffraction data are computed and written to files.  The output frequency and time averaging options are set by Nevery, Nrepeat, and Nfreq values. The data is written as both xyz and vtk files using as described by the required "format" keywords.  The threshold "keyword" is used to reduce the amount of data written to xyz files (ONLY) by setting a minimum diffraction intensity to be recorded.  For fix diffraction, a standard file naming convention has been implemented.  The "file" keyword value acts as a prefix in this naming convention.  This prefix is appended with a value indicating the count/timestep for the calculation as well as the appropriate file extension, i.e.PREFIX.COUNT.EXT
+
+By default, the COUNT value iterates in sequence (0,1,2,3...) each time the fix computes and writes diffraction data.  The sequencial values best interface with group naming conventions used to open multiple files in select visualizaiton softwares.  If desired, the "timestep" flag can overide this sequential behavior and use the current timestep for the COUNT value instead.  File exetnsions, EXT, used in the naming convention are either "xyz" or "vtk" depending on the file format(s) requested.
+
+The vtk format used in fix diffraction follows the structured points format, which takes advantage of the regular rectalinear reciprocal space grid used in the diffraction computation.  The structured points format assumes data fits wholy whithin a rectilenar box with a regular grid spacing. However, the diffraction data does not completley fill a rectilenar box (due to constraints on the reciprocal space region described above), therefore 'ghost' data (value = -1) is added to the fill the remainder of the box as requred by the vtk format. By adhearing to the structured points vtk file format, the position of each relp does not need to be stored explicitely.  Additionally the connections between points are automatically accounted for in visualization software for surface/volume rendering. By excuding explicit locations the vtk file size can be dramatically reduced, even with the added 'ghost' values.
+
+The xyz format was incorporated into fix diffraction to provide greater options for data analysis using non-visualization software.  The size of the reported data can be dramatically reduced by setting an appropriate minimum intensity value using the "threshold" keyword. The xyz file format contains data specific to the diffraction compute and threshold used denoted by "#".  Following these 2-3 lines, the diffraction data is writen simply as "h k l intensity".
+
+To mimic powder diffraction, fix ave/histo/weight performs a weighted binning of the x-ray diffraction intensity according to its scattering angle.  This is done using the following command format:
+
+fix             3 all ave/histo/weight 1 1 1 40 80 200 c_XRD[1] c_XRD[2] mode vector file $A.xrd
+
+Again the output frequency and averaging options are set by the Nevery, Nrepeat, and Nfeq options.  The next two values set
+
+
+
+This fix reduces the computed xrd data into a line profile by collecting the xrd data in spherical shells corresponding to their diffraction angle.
+
+
+
+
+
+
+## VISUALIZATION
+
+
+In addition to the LAMMPS output, a simple visualization of the electron diffraction data is included.  The visualization was created using the VisIt Open Source visualization software developed at Lawrence Livermore National Laboratory (https://wci.llnl.gov/simulation/computer-codes/visit/).
 
 Below is a step by step guide to produce similar images:
 
-a) Open the diffraction .vtk files in VisIt 
+a) Open the diffraction .vtk files in VisIt
 
 b) Click add->pseudocolor->intensity;
 
@@ -30,9 +108,7 @@ Click Apply;
 Click Dismiss;
 Click Draw;
  
-*Note, now you will see only where there was valid intensity data (if you 
-don't use Zone it will be a sphere).  But most intensity are low so color 
-the intensity by log scale.
+*Note, now you will see only where there was valid intensity data (if you don't use Zone it will be a sphere).  But most intensity are low so color the intensity by log scale.
 
 e) Select intensity plot
 
@@ -43,11 +119,7 @@ Input non-zero minimum limit (i.e. 1);
 Click Apply;
 Click Dismiss;
 
-Note, clicking apply will change the scale automatically.  But unless
-you have used Zone and a thin dR_Ewald you likely have lots of extra
-data visualized that does not intersect the Ewald sphere.  Next, we
-want to take a spherical slice to mimic the intersection of Ewald's
-sphere with reciprocal space.
+Note, clicking apply will change the scale automatically. But unless you have used Zone and a thin dR_Ewald you likely have lots of extra data visualized that does not intersect the Ewald sphere.  Next, we want to take a spherical slice to mimic the intersection of Ewald's sphere with reciprocal space.
 
 f) Select intensity plot;
 Click Operators->Slicing>Spherical Slice;
@@ -58,7 +130,7 @@ Click Apply;
 Click Dismiss;
 Click Draw;
 
-This is the saed pattern, but we are not guaranteed to be aligned correctly 
+This is the saed pattern, but we are not guaranteed to be aligned correctly
 with the zone axis.
 
 g) On the menu bar... select Controls -> View;
@@ -69,20 +141,15 @@ Turn off Perspective view;
 Click Apply;
 Click Dismiss;
 
-*Note that for the primary x, y, and z zone axis you can use the drop 
-own Align to axis.  However, it is likely that there is a bunch of extra 
-annotations on the image that don't look appealing.
+*Note that for the primary x, y, and z zone axis you can use the drop own Align to axis. However, it is likely that there is a bunch of extra annotations on the image that don't look appealing.
 
 h) On the menu bar... select Control-> Annotation;
 
-*Here you can change what is visualized along side the data and how
-you display axis information.  I typically turn most all the display
-information off.
+*Here you can change what is visualized along side the data and how you display axis information. I typically turn most all the display information off.
 
 i) Save the image
 
 Click File-> Set save options
 Click Save
 
-** Note, further fine tuning can be achieved by adjusing the color table and 
-max/min values **
+** Note, further fine tuning can be achieved by adjusting the color table and max/min values **

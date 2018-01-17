@@ -18,7 +18,7 @@
 
 #include "stdlib.h"
 #include "string.h"
-#include "fix_saed_vtk.h"
+#include "fix_saed_xyz.h"
 #include "update.h"
 #include "modify.h"
 #include "compute.h"
@@ -43,10 +43,10 @@ enum{FIRST,MULTI};
 
 /* ---------------------------------------------------------------------- */
 
-FixSAEDvtk::FixSAEDvtk(LAMMPS *lmp, int narg, char **arg) :
+FixSAEDxyz::FixSAEDxyz(LAMMPS *lmp, int narg, char **arg) :
   Fix(lmp, narg, arg)
 {
-  if (narg < 7) error->all(FLERR,"Illegal fix saed/vtk command");
+  if (narg < 7) error->all(FLERR,"Illegal fix saed/xyz command");
 
   MPI_Comm_rank(world,&me);
 
@@ -64,7 +64,7 @@ FixSAEDvtk::FixSAEDvtk(LAMMPS *lmp, int narg, char **arg) :
       iarg++;
     } else break;
   }
-  if (nvalues != 1) error->all(FLERR,"Illegal fix saed/vtk command");
+  if (nvalues != 1) error->all(FLERR,"Illegal fix saed/xyz command");
 
   options(narg,arg);
 
@@ -79,7 +79,7 @@ FixSAEDvtk::FixSAEDvtk(LAMMPS *lmp, int narg, char **arg) :
       strcpy(suffix,&arg[iarg][2]);
 
       char *ptr = strchr(suffix,'[');
-      if (ptr) error->all(FLERR,"Illegal fix saed/vtk command");
+      if (ptr) error->all(FLERR,"Illegal fix saed/xyz command");
 
       n = strlen(suffix) + 1;
       ids = new char[n];
@@ -88,14 +88,14 @@ FixSAEDvtk::FixSAEDvtk(LAMMPS *lmp, int narg, char **arg) :
 
       int icompute = modify->find_compute(ids);
       if (icompute < 0) 
-        error->all(FLERR,"Compute ID for fix saed/vtk does not exist");
+        error->all(FLERR,"Compute ID for fix saed/xyz does not exist");
       
       Compute *compute = modify->compute[icompute];
 
       // Check that specified compute is for SAED
       compute_saed = (ComputeSAED*) modify->compute[icompute];
       if (strcmp(compute_saed->style,"saed") != 0)
-        error->all(FLERR,"Fix saed/vtk has invalid compute assigned");
+        error->all(FLERR,"Fix saed/xyz has invalid compute assigned");
 
       // Gather varialbes from specified compute_saed
       double *saed_var = compute_saed->saed_var;
@@ -112,11 +112,11 @@ FixSAEDvtk::FixSAEDvtk(LAMMPS *lmp, int narg, char **arg) :
       manual = false;
       if (manual_double == 1) manual = true;
 
-      // Standard error check for fix/saed/vtk
+      // Standard error check for fix/saed/xyz
       if (compute->vector_flag == 0)
-        error->all(FLERR,"Fix saed/vtk compute does not calculate a vector");
+        error->all(FLERR,"Fix saed/xyz compute does not calculate a vector");
       if (compute->extvector != 0) 
-        error->all(FLERR,"Illegal fix saed/vtk command"); 
+        error->all(FLERR,"Illegal fix saed/xyz command"); 
       nrows = compute->size_vector;
       nvalues++;
       iarg++;
@@ -127,11 +127,11 @@ FixSAEDvtk::FixSAEDvtk(LAMMPS *lmp, int narg, char **arg) :
   // for fix inputs, check that fix frequency is acceptable
 
   if (nevery <= 0 || nrepeat <= 0 || nfreq <= 0)
-    error->all(FLERR,"Illegal fix saed/vtk command");
+    error->all(FLERR,"Illegal fix saed/xyz command");
   if (nfreq % nevery || (nrepeat-1)*nevery >= nfreq)
-    error->all(FLERR,"Illegal fix saed/vtk command");
+    error->all(FLERR,"Illegal fix saed/xyz command");
   if (ave != RUNNING && overwrite)
-    error->all(FLERR,"Illegal fix saed/vtk command");
+    error->all(FLERR,"Illegal fix saed/xyz command");
 
   // allocate memory for averaging
 
@@ -139,10 +139,10 @@ FixSAEDvtk::FixSAEDvtk(LAMMPS *lmp, int narg, char **arg) :
   vector_list = NULL;
 
   if (ave == WINDOW)
-    memory->create(vector_list,nwindow,nvalues,"saed/vtk:vector_list");
+    memory->create(vector_list,nwindow,nvalues,"saed/xyz:vector_list");
 
-  memory->create(vector,nrows,"saed/vtk:vector");
-  memory->create(vector_total,nrows,"saed/vtk:vector_total");
+  memory->create(vector,nrows,"saed/xyz:vector");
+  memory->create(vector_total,nrows,"saed/xyz:vector_total");
 
   extlist = NULL;
 
@@ -279,7 +279,7 @@ FixSAEDvtk::FixSAEDvtk(LAMMPS *lmp, int narg, char **arg) :
 
 /* ---------------------------------------------------------------------- */
 
-FixSAEDvtk::~FixSAEDvtk()
+FixSAEDxyz::~FixSAEDxyz()
 {
   delete [] extlist;
   memory->destroy(vector);
@@ -289,7 +289,7 @@ FixSAEDvtk::~FixSAEDvtk()
 
 /* ---------------------------------------------------------------------- */
 
-int FixSAEDvtk::setmask()
+int FixSAEDxyz::setmask()
 {
   int mask = 0;
   mask |= END_OF_STEP;
@@ -298,14 +298,14 @@ int FixSAEDvtk::setmask()
 
 /* ---------------------------------------------------------------------- */
 
-void FixSAEDvtk::init()
+void FixSAEDxyz::init()
 {
   // set current indices for all computes,fixes,variables
 
  
   int icompute = modify->find_compute(ids);
   if (icompute < 0)
-    error->all(FLERR,"Compute ID for fix saed/vtk does not exist");
+    error->all(FLERR,"Compute ID for fix saed/xyz does not exist");
 
   // need to reset nvalid if nvalid < ntimestep b/c minimize was performed
 
@@ -320,14 +320,14 @@ void FixSAEDvtk::init()
    only does something if nvalid = current timestep
 ------------------------------------------------------------------------- */
 
-void FixSAEDvtk::setup(int vflag)
+void FixSAEDxyz::setup(int vflag)
 {
   end_of_step();
 }
 
 /* ---------------------------------------------------------------------- */
 
-void FixSAEDvtk::end_of_step()
+void FixSAEDxyz::end_of_step()
 {
   // skip if not step which requires doing something
   bigint ntimestep = update->ntimestep;
@@ -337,12 +337,12 @@ void FixSAEDvtk::end_of_step()
 
 /* ---------------------------------------------------------------------- */
 
-void FixSAEDvtk::invoke_vector(bigint ntimestep)
+void FixSAEDxyz::invoke_vector(bigint ntimestep)
 {
   // zero if first step
   int icompute = modify->find_compute(ids);
   if (icompute < 0)
-    error->all(FLERR,"Compute ID for fix saed/vtk does not exist");
+    error->all(FLERR,"Compute ID for fix saed/xyz does not exist");
  
   if (irepeat == 0)
     for (int i = 0; i < nrows; i++)
@@ -419,16 +419,21 @@ void FixSAEDvtk::invoke_vector(bigint ntimestep)
       fclose(fp);  
 
       char nName [128];
-      sprintf(nName,"%s.%d.vtk",filename,nOutput);
+      sprintf(nName,"%s.%d.xyz",filename,nOutput);
       fp = fopen(nName,"w");
 
       if (fp == NULL) {
         char str[128];
-        sprintf(str,"Cannot open fix saed/vtk file %s",nName);
+        sprintf(str,"Cannot open fix saed/xyz file %s",nName);
         error->one(FLERR,str);
       }
     }
+    
+    // Header information with relp spacing
+    fprintf(fp,"#LAMBDA %g\n", lambda);
+    fprintf(fp,"#ASPECT_RATIO %g %g %g\n", dK[0], dK[1], dK[2]);
 
+/*
     fprintf(fp,"# vtk DataFile Version 3.0 c_%s\n",ids);
     fprintf(fp,"Image data set\n");
     fprintf(fp,"ASCII\n");
@@ -439,7 +444,7 @@ void FixSAEDvtk::invoke_vector(bigint ntimestep)
     fprintf(fp,"POINT_DATA %d\n",  Dim[0] *  Dim[1] * Dim[2] );
     fprintf(fp,"SCALARS intensity float\n");
     fprintf(fp,"LOOKUP_TABLE default\n");
-    
+*/    
     filepos = ftell(fp);
  
     if (overwrite) fseek(fp,filepos,SEEK_SET);
@@ -451,6 +456,9 @@ void FixSAEDvtk::invoke_vector(bigint ntimestep)
     double r = 0.0;
     double K[3];
 
+
+if ( (Threshold > 0)) {
+
     // Zone flag to capture entire reciprocal space volume
     if ( (Zone[0] == 0) && (Zone[1] == 0) && (Zone[2] == 0) ){
       for (int k = Knmin[2]; k <= Knmax[2]; k++) {
@@ -461,15 +469,18 @@ void FixSAEDvtk::invoke_vector(bigint ntimestep)
             K[2] = k * dK[2];
             dinv2 = (K[0] * K[0] + K[1] * K[1] + K[2] * K[2]);
             if (dinv2 < Kmax * Kmax) {
-               fprintf(fp,"%g\n",vector_total[NROW1]/norm);
-               fflush(fp);
                NROW1++;
-               NROW2++;
-            } else {
-            fprintf(fp,"%d\n",-1);
-            fflush(fp);
-            NROW2++;
-            }
+               if ( (vector_total[NROW1-1]/norm >= Threshold )){
+               fprintf(fp,"%g %g %g %g\n",K[0],K[1],K[2],vector_total[NROW1-1]/norm);
+               fflush(fp);
+               }
+//               NROW2++;
+            } 
+//            else {
+//            fprintf(fp,"%d\n",-1);
+//            fflush(fp);
+//            NROW2++;
+//            }
           }
         }
       }
@@ -486,24 +497,94 @@ void FixSAEDvtk::invoke_vector(bigint ntimestep)
               for (int m=0; m<3; m++) r += pow(K[m] - Zone[m],2.0);
               r = sqrt(r);
               if  ( (r >  (R_Ewald - dR_Ewald) ) && (r < (R_Ewald + dR_Ewald) ) ){
-               fprintf(fp,"%g\n",vector_total[NROW1]/norm);
-               fflush(fp);
-               NROW2++;
                NROW1++;
-              } else {
-                fprintf(fp,"%d\n",-1);
-                fflush(fp);
-                NROW2++;
-              }
-            } else {
-            fprintf(fp,"%d\n",-1);
-            fflush(fp);
-            NROW2++;
-           }
+               
+               if ( (vector_total[NROW1-1]/norm >= Threshold )){              
+               fprintf(fp,"%g %g %g %g\n",K[0],K[1],K[2],vector_total[NROW1]/norm);                   //  Added x y z here
+               fflush(fp);
+               }
+//               NROW2++;
+
+              } 
+//              else {
+//                fprintf(fp,"%d\n",-1);
+//                fflush(fp);
+//                NROW2++;
+//              }
+            }
+//           else {
+//            fprintf(fp,"%d\n",-1);
+//            fflush(fp);
+//            NROW2++;
+//           }
           }
         }
       }
     }
+    
+
+}
+else {//begin normal
+
+    // Zone flag to capture entire reciprocal space volume
+    if ( (Zone[0] == 0) && (Zone[1] == 0) && (Zone[2] == 0) ){
+      for (int k = Knmin[2]; k <= Knmax[2]; k++) {
+        for (int j = Knmin[1]; j <= Knmax[1]; j++) {
+          for (int i = Knmin[0]; i <= Knmax[0]; i++) {
+            K[0] = i * dK[0];
+            K[1] = j * dK[1];
+            K[2] = k * dK[2];
+            dinv2 = (K[0] * K[0] + K[1] * K[1] + K[2] * K[2]);
+            if (dinv2 < Kmax * Kmax) {
+               fprintf(fp,"%g %g %g %g\n",K[0],K[1],K[2],vector_total[NROW1]/norm);                   //  Added x y z here
+               fflush(fp);
+               NROW1++;
+//               NROW2++;
+            } 
+//            else {
+//            fprintf(fp,"%d\n",-1);
+//            fflush(fp);
+//            NROW2++;
+//            }
+          }
+        }
+      }
+    } else {
+      for (int k = Knmin[2]; k <= Knmax[2]; k++) {
+        for (int j = Knmin[1]; j <= Knmax[1]; j++) {
+          for (int i = Knmin[0]; i <= Knmax[0]; i++) {
+            K[0] = i * dK[0];
+            K[1] = j * dK[1];
+            K[2] = k * dK[2];
+            dinv2 = (K[0] * K[0] + K[1] * K[1] + K[2] * K[2]);
+            if (dinv2 < Kmax * Kmax) {
+              r=0.0;
+              for (int m=0; m<3; m++) r += pow(K[m] - Zone[m],2.0);
+              r = sqrt(r);
+              if  ( (r >  (R_Ewald - dR_Ewald) ) && (r < (R_Ewald + dR_Ewald) ) ){
+               fprintf(fp,"%g %g %g %g\n",K[0],K[1],K[2],vector_total[NROW1]/norm);                   //  Added x y z here
+               fflush(fp);
+               NROW2++;
+               NROW1++;
+              } 
+//              else {
+//                fprintf(fp,"%d\n",-1);
+//                fflush(fp);
+//                NROW2++;
+//              }
+            }
+//           else {
+//            fprintf(fp,"%d\n",-1);
+//            fflush(fp);
+//            NROW2++;
+//           }
+          }
+        }
+      }
+    }
+
+}//end normal        
+    
   }
   nOutput++;   
 }
@@ -512,7 +593,7 @@ void FixSAEDvtk::invoke_vector(bigint ntimestep)
    return Ith vector value
 ------------------------------------------------------------------------- */
 
-double FixSAEDvtk::compute_vector(int i)
+double FixSAEDxyz::compute_vector(int i)
 {
   if (norm) {
     return vector_total[i]/norm;
@@ -524,7 +605,7 @@ double FixSAEDvtk::compute_vector(int i)
    parse optional args
 ------------------------------------------------------------------------- */
 
-void FixSAEDvtk::options(int narg, char **arg)
+void FixSAEDxyz::options(int narg, char **arg)
 {
   // option defaults
 
@@ -532,12 +613,13 @@ void FixSAEDvtk::options(int narg, char **arg)
   ave = ONE;
   startstep = 0;
   overwrite = 0;
+  Threshold = -1;
 
   // optional args
   int iarg = 6 + nvalues;
   while (iarg < narg) {
     if (strcmp(arg[iarg],"file") == 0) {
-      if (iarg+2 > narg) error->all(FLERR,"Illegal fix saed/vtk command");
+      if (iarg+2 > narg) error->all(FLERR,"Illegal fix saed/xyz command");
       if (me == 0) {
       
          nOutput = 0;
@@ -546,37 +628,41 @@ void FixSAEDvtk::options(int narg, char **arg)
          strcpy(filename,arg[iarg+1]);
 
         char nName [128];
-         sprintf(nName,"%s.%d.vtk",filename,nOutput);
+         sprintf(nName,"%s.%d.xyz",filename,nOutput);
          fp = fopen(nName,"w");
 
         if (fp == NULL) {
           char str[128];
-          sprintf(str,"Cannot open fix saed/vtk file %s",nName);
+          sprintf(str,"Cannot open fix saed/xyz file %s",nName);
           error->one(FLERR,str);
         }    
       }
       iarg += 2;
     } else if (strcmp(arg[iarg],"ave") == 0) {
-      if (iarg+2 > narg) error->all(FLERR,"Illegal fix saed/vtk command");
+      if (iarg+2 > narg) error->all(FLERR,"Illegal fix saed/xyz command");
       if (strcmp(arg[iarg+1],"one") == 0) ave = ONE;
       else if (strcmp(arg[iarg+1],"running") == 0) ave = RUNNING;
       else if (strcmp(arg[iarg+1],"window") == 0) ave = WINDOW;
-      else error->all(FLERR,"Illegal fix saed/vtk command");
+      else error->all(FLERR,"Illegal fix saed/xyz command");
       if (ave == WINDOW) {
-        if (iarg+3 > narg) error->all(FLERR,"Illegal fix saed/vtk command");
+        if (iarg+3 > narg) error->all(FLERR,"Illegal fix saed/xyz command");
         nwindow = force->inumeric(FLERR,arg[iarg+2]);
-        if (nwindow <= 0) error->all(FLERR,"Illegal fix saed/vtk command");
+        if (nwindow <= 0) error->all(FLERR,"Illegal fix saed/xyz command");
       }
       iarg += 2;
       if (ave == WINDOW) iarg++;
     } else if (strcmp(arg[iarg],"start") == 0) {
-      if (iarg+2 > narg) error->all(FLERR,"Illegal fix saed/vtk command");
+      if (iarg+2 > narg) error->all(FLERR,"Illegal fix saed/xyz command");
       startstep = force->inumeric(FLERR,arg[iarg+1]);
       iarg += 2;
     } else if (strcmp(arg[iarg],"overwrite") == 0) {
       overwrite = 1;
       iarg += 1;
-    } else error->all(FLERR,"Illegal fix saed/vtk command");
+    } else if (strcmp(arg[iarg],"threshold") == 0) {
+      if (iarg+2 > narg) error->all(FLERR,"Illegal fix saed/xyz command");
+      Threshold = atof(arg[iarg+1]);
+      iarg += 2;      
+    } else error->all(FLERR,"Illegal fix saed/xyz command");
   }
 }
 
@@ -587,7 +673,7 @@ void FixSAEDvtk::options(int narg, char **arg)
    startstep is lower bound on nfreq multiple
 ------------------------------------------------------------------------- */
 
-bigint FixSAEDvtk::nextvalid()
+bigint FixSAEDxyz::nextvalid()
 {
   bigint nvalid = (update->ntimestep/nfreq)*nfreq + nfreq;
   while (nvalid < startstep) nvalid += nfreq;
@@ -601,7 +687,7 @@ bigint FixSAEDvtk::nextvalid()
 
 /* ---------------------------------------------------------------------- */
 
-void FixSAEDvtk::reset_timestep(bigint ntimestep)
+void FixSAEDxyz::reset_timestep(bigint ntimestep)
 {
-  if (ntimestep > nvalid) error->all(FLERR,"Fix saed/vtk missed timestep");
+  if (ntimestep > nvalid) error->all(FLERR,"Fix saed/xyz missed timestep");
 }

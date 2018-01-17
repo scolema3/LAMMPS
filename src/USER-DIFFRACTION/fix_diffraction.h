@@ -1,4 +1,4 @@
-/* ----------------------------------------------------------------------
+/* -*- c++ -*- ----------------------------------------------------------
    LAMMPS - Large-scale Atomic/Molecular Massively Parallel Simulator
    http://lammps.sandia.gov, Sandia National Laboratories
    Steve Plimpton, sjplimp@sandia.gov
@@ -13,22 +13,22 @@
 
 #ifdef FIX_CLASS
 
-FixStyle(saed/vtk,FixSAEDvtk)
+FixStyle(diffraction,FixDIFF)
 
 #else
 
-#ifndef LMP_FIX_SAED_VTK_H
-#define LMP_FIX_SAED_VTK_H
+#ifndef LMP_FIX_DIFF_H
+#define LMP_FIX_DIFF_H
 
 #include "stdio.h"
 #include "fix.h"
 
 namespace LAMMPS_NS {
 
-class FixSAEDvtk : public Fix {
+class FixDIFF : public Fix {
  public:
-  FixSAEDvtk(class LAMMPS *, int, char **);
-  ~FixSAEDvtk();
+  FixDIFF(class LAMMPS *, int, char **);
+  ~FixDIFF();
   int setmask();
   void init();
   void setup(int);
@@ -43,7 +43,7 @@ class FixSAEDvtk : public Fix {
   bigint nvalid;
   int which;
   char *ids;
-  FILE *fp;
+  
   int nrows;
 
   int ave,nwindow,nsum,startstep;
@@ -61,26 +61,47 @@ class FixSAEDvtk : public Fix {
 
   bigint nextvalid();
   
-  class ComputeSAED *compute_saed;
+  FILE    *fp_xyz;
+  FILE    *fp_vtk;   
+  char    *filename;         // user-specified file
+  bool    steptime;           
 
-  double  Zone[3];           // Zone axis to view SAED
-  double  R_Ewald;           // Radius of Ewald sphere (distance units)
-  double  lambda;            // Radiation wavelength (distance units)
-  double  dK[3];             // spacing of reciprocal points in each dimension
-  int     Knmax[3];          // maximum integer value for K points in each dimension
-  int     Knmin[3];          // minimum integer value for K points in each dimension
+  int     nOutput; 
+  bool    vtkflag;
+  bool    xyzflag;  
 
-  int     KnSlice[6];        // min 0-2 max 2-5 hkl index using zone
-  double  Kmax;              // Maximum reciprocal distance to explore
-  double  c[3];              // Parameters controlling resolution of reciprocal space explored
-  double  dR_Ewald;          // Thickness of Ewald sphere slice
+  double  Threshold;          // Intensity threshold value
+
   double  prd_inv[3];        // Inverse spacing of unit cell
 
-  char    *filename;         // user-specified file
-  int     nOutput; 
-  int     Dim[3];
-  bool    manual;            // Turn on manual reciprocal map
+  // XRD
+  class ComputeXRD *compute_xrd;
+  bool    xrdflag;
+  double  lambda_xrd;        // Radiation wavelength (distance units)
+  bool    manual_xrd;        // Turn on manual reciprocal map
+  double  Kmax_xrd;          //
+  double  dK_xrd[3];         // spacing of reciprocal points in each dimension  
+  int     Knmax_xrd[3];      // maximum integer value for K points in each dimension
+  int     Knmin_xrd[3];      // minimum integer value for K points in each dimension
+  int     Dim_xrd[3];  
+  double  Max2Theta;
+  double  Min2Theta;
+  double  ang;
 
+  // SAED
+  class ComputeSAED *compute_saed;
+  bool    saedflag;
+  double  lambda_saed;       // Radiation wavelength (distance units)
+  bool    manual_saed;       // Turn on manual reciprocal map
+  double  dK_saed[3];        // spacing of reciprocal points in each dimension
+  double  Kmax_saed;         // Maximum reciprocal distance to exploren
+  int     Knmax_saed[3];     // maximum integer value for K points in each dimension
+  int     Knmin_saed[3];     // minimum integer value for K points in each dimension
+  int     Dim_saed[3];       // integer dimension of vtk 
+  double  Zone[3];           // Zone axis to view SAED
+  double  R_Ewald;           // Radius of Ewald sphere (distance units)
+  double  dR_Ewald;          // Thickness of Ewald sphere slice
+  int     KnSlice[6];        // min 0-2 max 2-5 hkl index using zone
 };
 
 }

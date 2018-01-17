@@ -1,20 +1,20 @@
-# mac_mpi = Apple laptop, MacPorts Open MPI 1.4.3, gcc 4.8, fftw, jpeg
+# xe6 = Cray XE6, Cray CC, native MPI, FFTW
 
 SHELL = /bin/sh
+.SUFFIXES: .cpp .d
 
 # ---------------------------------------------------------------------
 # compiler/linker settings
-# generally no need to edit this section
-# unless additional compiler/linker flags or libraries needed for your machine
+# specify flags and libraries needed for your compiler
 
-CC =	 	/opt/local/bin/mpicxx-openmpi-mp
-CCFLAGS =	-O3 
+CC =	         CC
+CCFLAGS =	-O2 -xHost -qopenmp
 SHFLAGS =	-fPIC
 DEPFLAGS =	-M
 
-LINK =		/opt/local/bin/mpicxx-openmpi-mp
-LINKFLAGS =	-O3
-LIB =           
+LINK =		CC
+LINKFLAGS =	-O2 -L/opt/intel/mkl/lib/intel64/ -L/opt/intel/lib/intel64/
+LIB =           -lstdc++ -lmkl_core -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_lapack95_lp64 -lpthread -lifcore -liomp5
 SIZE =		size
 
 ARCHIVE =	ar
@@ -29,7 +29,7 @@ SHLIBFLAGS =	-shared
 # LAMMPS ifdef settings
 # see possible settings in Section 2.2 (step 4) of manual
 
-LMP_INC =	-DLAMMPS_GZIP -DLAMMPS_JPEG
+LMP_INC =	-DLAMMPS_GZIP
 
 # MPI library
 # see discussion in Section 2.2 (step 5) of manual
@@ -40,8 +40,8 @@ LMP_INC =	-DLAMMPS_GZIP -DLAMMPS_JPEG
 # PATH = path for MPI library
 # LIB = name of MPI library
 
-MPI_INC =       -DOMPI_SKIP_MPICXX
-MPI_PATH =	
+MPI_INC =       -DMPICH_SKIP_MPICXX 
+MPI_PATH = 
 MPI_LIB =	
 
 # FFT library
@@ -51,11 +51,9 @@ MPI_LIB =
 # PATH = path for FFT library
 # LIB = name of FFT library
 
-FFTW =	
-
-FFT_INC =      
+FFT_INC =       -DFFT_FFTW3 -DFFT_SINGLE 
 FFT_PATH =
-FFT_LIB =	
+FFT_LIB =	-lfftw3f
 
 # JPEG and/or PNG library
 # see discussion in Section 2.2 (step 7) of manual
@@ -64,9 +62,9 @@ FFT_LIB =
 # PATH = path(s) for JPEG library and/or PNG library
 # LIB = name(s) of JPEG library and/or PNG library
 
-JPG_INC =       -I/opt/local/include
-JPG_PATH = 	-L/opt/local/lib
-JPG_LIB =	-ljpeg
+JPG_INC =       
+JPG_PATH = 	
+JPG_LIB =	
 
 # ---------------------------------------------------------------------
 # build rules and dependencies
@@ -78,8 +76,6 @@ include	Makefile.package
 EXTRA_INC = $(LMP_INC) $(PKG_INC) $(MPI_INC) $(FFT_INC) $(JPG_INC) $(PKG_SYSINC)
 EXTRA_PATH = $(PKG_PATH) $(MPI_PATH) $(FFT_PATH) $(JPG_PATH) $(PKG_SYSPATH)
 EXTRA_LIB = $(PKG_LIB) $(MPI_LIB) $(FFT_LIB) $(JPG_LIB) $(PKG_SYSLIB)
-EXTRA_CPP_DEPENDS = $(PKG_CPP_DEPENDS)
-EXTRA_LINK_DEPENDS = $(PKG_LINK_DEPENDS)
 
 # Path to src files
 
@@ -88,36 +84,31 @@ vpath %.h ..
 
 # Link target
 
-$(EXE):	$(OBJ) $(EXTRA_LINK_DEPENDS)
+$(EXE):	$(OBJ)
 	$(LINK) $(LINKFLAGS) $(EXTRA_PATH) $(OBJ) $(EXTRA_LIB) $(LIB) -o $(EXE)
 	$(SIZE) $(EXE)
 
 # Library targets
 
-lib:	$(OBJ) $(EXTRA_LINK_DEPENDS)
+lib:	$(OBJ)
 	$(ARCHIVE) $(ARFLAGS) $(EXE) $(OBJ)
 
-shlib:	$(OBJ) $(EXTRA_LINK_DEPENDS)
+shlib:	$(OBJ)
 	$(CC) $(CCFLAGS) $(SHFLAGS) $(SHLIBFLAGS) $(EXTRA_PATH) -o $(EXE) \
         $(OBJ) $(EXTRA_LIB) $(LIB)
 
 # Compilation rules
 
-%.o:%.cpp $(EXTRA_CPP_DEPENDS)
+%.o:%.cpp
 	$(CC) $(CCFLAGS) $(SHFLAGS) $(EXTRA_INC) -c $<
 
-%.d:%.cpp $(EXTRA_CPP_DEPENDS)
+%.d:%.cpp
 	$(CC) $(CCFLAGS) $(EXTRA_INC) $(DEPFLAGS) $< > $@
 
-%.o:%.cu $(EXTRA_CPP_DEPENDS)
+%.o:%.cu
 	$(CC) $(CCFLAGS) $(SHFLAGS) $(EXTRA_INC) -c $<
 
 # Individual dependencies
 
-depend : fastdep.exe $(SRC)
-	@./fastdep.exe $(EXTRA_INC) -- $^ > .depend || exit 1
-
-fastdep.exe: ../DEPEND/fastdep.c
-	cc -O -o $@ $<
-
-sinclude .depend
+DEPENDS = $(OBJ:.o=.d)
+sinclude $(DEPENDS)

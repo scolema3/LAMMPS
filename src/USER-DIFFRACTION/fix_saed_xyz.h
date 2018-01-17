@@ -13,22 +13,22 @@
 
 #ifdef FIX_CLASS
 
-FixStyle(saed/vtk,FixSAEDvtk)
+FixStyle(saed/xyz,FixSAEDxyz)
 
 #else
 
-#ifndef LMP_FIX_SAED_VTK_H
-#define LMP_FIX_SAED_VTK_H
+#ifndef LMP_FIX_SAED_XYZ_H
+#define LMP_FIX_SAED_XYZ_H
 
 #include "stdio.h"
 #include "fix.h"
 
 namespace LAMMPS_NS {
 
-class FixSAEDvtk : public Fix {
+class FixSAEDxyz : public Fix {
  public:
-  FixSAEDvtk(class LAMMPS *, int, char **);
-  ~FixSAEDvtk();
+  FixSAEDxyz(class LAMMPS *, int, char **);
+  ~FixSAEDxyz();
   int setmask();
   void init();
   void setup(int);
@@ -69,6 +69,7 @@ class FixSAEDvtk : public Fix {
   double  dK[3];             // spacing of reciprocal points in each dimension
   int     Knmax[3];          // maximum integer value for K points in each dimension
   int     Knmin[3];          // minimum integer value for K points in each dimension
+  double Threshold;          // Intensity threshold value
 
   int     KnSlice[6];        // min 0-2 max 2-5 hkl index using zone
   double  Kmax;              // Maximum reciprocal distance to explore

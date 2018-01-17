@@ -1,4 +1,4 @@
-/* -*- c++ -*- ----------------------------------------------------------
+/* ----------------------------------------------------------------------
    LAMMPS - Large-scale Atomic/Molecular Massively Parallel Simulator
    http://lammps.sandia.gov, Sandia National Laboratories
    Steve Plimpton, sjplimp@sandia.gov
@@ -15,21 +15,21 @@
 #define LMP_COMPUTE_SAED_CONSTS_H
 
 /*
-The paramaters for analytical approximation of the atomic scattering factors
-used for electron diffraction are gathered from the resources:
+The parameters for analytical approximation of the atomic scattering factors
+used for electron diffraction are gathered from the resources: 
 
-Colliex C et al 2004 Electron diffraction International Tables for
-Crystallography Volume C: Mathematical, Physical, and Chemical Tables
+Colliex C et al 2004 Electron diffraction International Tables for 
+Crystallography Volume C: Mathematical, Physical, and Chemical Tables 
 ed E Prince (Norwell, MA: Kluwer) pp 259429
 
-Peng L-M, Ren G, Dudarev S L and Whelan MJ 1996 Robust parameterization of
-elastic and absorptive electron atomic scattering factors
+Peng L-M, Ren G, Dudarev S L and Whelan MJ 1996 Robust parameterization of 
+elastic and absorptive electron atomic scattering factors 
 Acta Crystallogr.A 52 25776
 */
 
-#define SAEDmaxType 98
+#define SAEDmaxType 99
 
-// list of element types associated with atomic scattering factor constants
+// list of element types associated with atomic scattering factor constants 
 static const char *SAEDtypeList[SAEDmaxType] = {
                 "H",      "He",      "Li",      "Be",       "B",
                 "C",       "N",       "O",       "F",      "Ne",
@@ -50,10 +50,14 @@ static const char *SAEDtypeList[SAEDmaxType] = {
                "Tl",      "Pb",      "Bi",      "Po",      "At",
                "Rn",      "Fr",      "Ra",      "Ac",      "Th",
                "Pa",       "U",      "Np",      "Pu",      "Am",
-               "Cm",      "Bk",      "Cf"};
+               "Cm",      "Bk",      "Cf",      "NULL"};
 
 // list of atomic scattering factor constants for electron diffraction
-static const double ASFSAED[SAEDmaxType][20] = {
+#ifdef _LMP_INTEL_OFFLOAD 
+__declspec( target(mic) ) const double ASFSAED[SAEDmaxType][20] = {
+#else
+const double ASFSAED[SAEDmaxType][20] = {
+#endif
   /*  Each set of four rows in this file represents a single row in the matrix
       First two rows are constants for 0 < sin(theta)/lambda < 2
       Z-number     A1         A2         A3         A4         A5
@@ -453,6 +457,10 @@ static const double ASFSAED[SAEDmaxType][20] = {
                0.2421,    1.7487,    6.7262,   23.2153,   80.3108,
                0.8100,    3.0001,    5.4635,    4.1756,    3.5066,
                0.1310,    1.4038,    7.6057,   34.0186,   90.5226},
+  /* 99*/ {    0.2000,    0.2000,    0.2000,    0.2000,    0.2000,
+               0.0000,    0.0000,    0.0000,    0.0000,    0.0000,
+               0.2000,    0.2000,    0.2000,    0.2000,    0.2000,
+               0.0000,    0.0000,    0.0000,    0.0000,    0.0000},               
   };
 
 #endif

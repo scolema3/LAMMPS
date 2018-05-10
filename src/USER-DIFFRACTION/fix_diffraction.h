@@ -63,12 +63,17 @@ class FixDIFF : public Fix {
   
   FILE    *fp_xyz;
   FILE    *fp_vtk;   
+  FILE    *fp_hist;
   char    *filename;         // user-specified file
   bool    steptime;           
 
   int     nOutput; 
   bool    vtkflag;
-  bool    xyzflag;  
+  bool    xyzflag;
+
+  bool    histflag;
+  int     nbins;
+  double *bin;
 
   double  Threshold;          // Intensity threshold value
 

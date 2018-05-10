@@ -12,8 +12,7 @@
 ------------------------------------------------------------------------- */
 
 /* ----------------------------------------------------------------------
-   Contributing author: Pieter in 't Veld (SNL)
-   Incorporating SAED: Shawn Coleman (Arkansas)
+   Contributing author: Shawn Coleman (ARL)
 ------------------------------------------------------------------------- */
 
 #include <stdlib.h>
@@ -161,6 +160,10 @@ FixDIFF::FixDIFF(LAMMPS *lmp, int narg, char **arg) :
       iarg++;
     } else break;
   }
+
+  // Setup Histogram
+  if (histflag)
+    bin = new double[nbins];
 
 
   // setup and error check
@@ -407,9 +410,13 @@ void FixDIFF::invoke_vector(bigint ntimestep)
   if (icompute < 0)
     error->all(FLERR,"Compute ID for fix diffraction does not exist");
 
-  if (irepeat == 0)
+  if (irepeat == 0) {
     for (int i = 0; i < nrows; i++)
        vector[i] = 0.0;
+    if (histflag) 
+      for (int i = 0; i < nbins; i++) bin[i] = 0.0;
+  }
+
 
   // accumulate results of computes,fixes,variables to local copy
   // compute/fix/variable may invoke computes so wrap with clear/add
@@ -486,6 +493,7 @@ void FixDIFF::invoke_vector(bigint ntimestep)
     else norm = iwindow;
   }
 
+
   // Writing to file
   // Index files using timestep or by output count
   int indexP;
@@ -522,6 +530,168 @@ void FixDIFF::invoke_vector(bigint ntimestep)
     }
   }
 
+
+  // HISTOGRAM
+  if (histflag && me == 0) {
+    // Iterate filenames for multiple snapshots
+    if ( nOutput > 0 ) fclose(fp_hist);
+    fp_hist = NULL;
+    char nName [128];
+    sprintf(nName,"%s.%d.hist",filename,indexP);
+    fp_hist = fopen(nName,"w");
+    if (fp_hist == NULL) {
+      char str[128];
+      sprintf(str,"Cannot open fix diffraction-hist file %s",nName);
+      error->one(FLERR,str);
+    }
+  }
+
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+
+  // HIST format for SAED
+  if (fp_hist && saedflag && me == 0) {
+
+    double coord = 0.0;
+    double value = 0.0;
+    double lo = 0.0;
+    double hi = Kmax_saed;
+    double binsize = (hi-lo)/nbins;
+    double bininv = 1.0/binsize;
+
+
+    // Finding the intersection of the reciprocal space and Ewald sphere
+    int NROW1 = 0;
+    double dinv2 = 0.0;
+    double r = 0.0;
+    double K[3];
+
+    // Zone flag to capture entire reciprocal space volume
+    if ( (Zone[0] == 0) && (Zone[1] == 0) && (Zone[2] == 0) ){
+      for (int k = Knmin_saed[2]; k <= Knmax_saed[2]; k++) {
+        for (int j = Knmin_saed[1]; j <= Knmax_saed[1]; j++) {
+          for (int i = Knmin_saed[0]; i <= Knmax_saed[0]; i++) {
+            K[0] = i * dK_saed[0];
+            K[1] = j * dK_saed[1];
+            K[2] = k * dK_saed[2];
+            dinv2 = (K[0] * K[0] + K[1] * K[1] + K[2] * K[2]);
+            if (dinv2 < Kmax_saed * Kmax_saed) {
+              value = sqrt(dinv2);
+              int ibin = static_cast<int> ((value-lo)*bininv);
+              ibin = MIN(ibin,nbins-1);
+              bin[ibin] += vector_total[NROW1]/norm;
+              NROW1++;
+            }
+          }
+        }
+      }
+    } else {
+      for (int k = Knmin_saed[2]; k <= Knmax_saed[2]; k++) {
+        for (int j = Knmin_saed[1]; j <= Knmax_saed[1]; j++) {
+          for (int i = Knmin_saed[0]; i <= Knmax_saed[0]; i++) {
+            K[0] = i * dK_saed[0];
+            K[1] = j * dK_saed[1];
+            K[2] = k * dK_saed[2];
+            dinv2 = (K[0] * K[0] + K[1] * K[1] + K[2] * K[2]);
+            if (dinv2 < hi) {
+              r = 0.0;
+              for (int m=0; m<3; m++) r += pow(K[m] - Zone[m],2.0);
+              r = sqrt(r);
+              if  ( (r >  (R_Ewald - dR_Ewald) ) && (r < (R_Ewald + dR_Ewald) ) ){
+                value = sqrt(dinv2);
+                int ibin = static_cast<int> ((value-lo)*bininv);
+                ibin = MIN(ibin,nbins-1);
+                bin[ibin] += vector_total[NROW1]/norm;
+                NROW1++;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Print header information
+    fprintf(fp_hist,"#LAMBDA %g\n", lambda_saed);
+    fprintf(fp_hist,"#ASPECT_RATIO %g %g %g\n", dK_saed[0], dK_saed[1], dK_saed[2]);
+    fprintf(fp_hist,"#NBINS %g\n", nbins);
+
+    filepos = ftell(fp_hist);
+    if (overwrite) fseek(fp_hist,filepos,SEEK_SET);
+
+    for (int i = 0; i < nbins; i++) {
+        coord = lo + (i+0.5)*binsize;
+        fprintf(fp_hist,"%d %g %g\n",i+1,coord,bin[i]);
+    }
+
+ } //END HIST SAED
+
+
+  // HIST format for XRD
+  if (fp_hist && saedflag && me == 0) {
+
+    double coord = 0.0;
+    double value = 0.0;
+    double lo = Min2Theta;
+    double hi = Max2Theta;
+    double binsize = (hi-lo)/nbins;
+    double bininv = 1.0/binsize;
+
+
+    // Finding the intersection of the reciprocal space and Ewald sphere
+    int NROW1 = 0;
+    double dinv2 = 0.0;
+    double r = 0.0;
+    double K[3];
+
+    for (int i = -Knmax_xrd[0]; i <= Knmax_xrd[0]; i++) {
+      for (int j = -Knmax_xrd[1]; j <= Knmax_xrd[1]; j++) {
+        for (int k = -Knmax_xrd[2]; k <= Knmax_xrd[2]; k++) {
+          K[0] = i * dK_xrd[0];
+          K[1] = j * dK_xrd[1];
+          K[2] = k * dK_xrd[2];
+          dinv2 = (K[0] * K[0] + K[1] * K[1] + K[2] * K[2]);
+          if  (4 >= dinv2 * lambda_xrd * lambda_xrd ) {
+	    ang = asin(lambda_xrd * sqrt(dinv2) / 2);
+            if ( (ang <= Max2Theta) & (ang >= Min2Theta) ) {
+                value = ang;
+                int ibin = static_cast<int> ((value-lo)*bininv);
+                ibin = MIN(ibin,nbins-1);
+                bin[ibin] += vector_total[NROW1]/norm;
+                NROW1++;
+            }
+          }
+        }
+      }
+    }
+
+
+
+    // Print header information
+    fprintf(fp_hist,"#LAMBDA %g\n", lambda_saed);
+    fprintf(fp_hist,"#ASPECT_RATIO %g %g %g\n", dK_saed[0], dK_saed[1], dK_saed[2]);
+    fprintf(fp_hist,"#NBINS %g\n", nbins);
+
+    filepos = ftell(fp_hist);
+    if (overwrite) fseek(fp_hist,filepos,SEEK_SET);
+
+
+    for (int i = 0; i < nbins; i++) {
+        coord = lo + (i+0.5)*binsize;
+        fprintf(fp_hist,"%d %g %g\n",i+1,coord,bin[i]);
+    }
+
+ } //END HIST XRD
+
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+
+ 
   // XYZ format for SAED
   if (fp_xyz && saedflag && me == 0) {
 
@@ -620,6 +790,7 @@ void FixDIFF::invoke_vector(bigint ntimestep)
     }
   } // END - XYZ format for SAED
 
+
   // XYZ format for XRD
   if (fp_xyz && xrdflag && me == 0) {
 
@@ -674,6 +845,13 @@ void FixDIFF::invoke_vector(bigint ntimestep)
       }
     }
   } // END - XYZ format for XRD
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 
   // VTK format for SAED
   if (fp_vtk && saedflag && me == 0) {
@@ -806,13 +984,18 @@ void FixDIFF::options(int narg, char **arg)
 
   fp_vtk = NULL;
   fp_xyz = NULL;
+  fp_hist = NULL;
+
   ave = ONE;
   startstep = 0;
   overwrite = 0;
   Threshold = -1;
+  nbins = 100; 
 
   vtkflag = false;
   xyzflag = false;
+  histflag = false;
+
   steptime = false;
 
   bool formatflag = false;
@@ -831,8 +1014,14 @@ void FixDIFF::options(int narg, char **arg)
       if (iarg+2 > narg) error->all(FLERR,"Illegal fix diffraction command");
       if (strcmp(arg[iarg+1],"vtk") == 0) vtkflag=true;
       else if (strcmp(arg[iarg+1],"xyz") == 0) xyzflag=true;
+      else if (strcmp(arg[iarg+1],"hist") == 0) histflag=true;
       else  error->all(FLERR,"Illegal fix diffraction command");
       iarg += 2;
+   } else if (strcmp(arg[iarg],"nbins") == 0) {
+      if (iarg+2 > narg) error->all(FLERR,"Illegal fix diffraction command");
+      nbins = atof(arg[iarg+1]);
+      iarg += 2;
+
     } else if (strcmp(arg[iarg],"ave") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal fix diffraction command");
       if (strcmp(arg[iarg+1],"one") == 0) ave = ONE;

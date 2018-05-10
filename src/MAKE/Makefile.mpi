@@ -7,12 +7,12 @@ SHELL = /bin/sh
 # generally no need to edit this section
 # unless additional compiler/linker flags or libraries needed for your machine
 
-CC =	 	/opt/local/bin/mpicxx-openmpi-mp
+CC =	 	mpicxx
 CCFLAGS =	-O3 
 SHFLAGS =	-fPIC
 DEPFLAGS =	-M
 
-LINK =		/opt/local/bin/mpicxx-openmpi-mp
+LINK =		mpicxx
 LINKFLAGS =	-O3
 LIB =           
 SIZE =		size

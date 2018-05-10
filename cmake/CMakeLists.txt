@@ -101,10 +101,10 @@ set(DEFAULT_PACKAGES ASPHERE BODY CLASS2 COLLOID COMPRESS CORESHELL DIPOLE GRANU
   KSPACE MANYBODY MC MEAM MISC MOLECULE PERI QEQ
   REAX REPLICA RIGID SHOCK SNAP SRD)
 set(OTHER_PACKAGES KIM PYTHON MSCG MPIIO VORONOI POEMS LATTE
-  USER-ATC USER-AWPMD USER-CGDNA USER-MESO
+  USER-ATC USER-AWPMD USER-BOCS USER-CGDNA USER-MESO
   USER-CGSDK USER-COLVARS USER-DIFFRACTION USER-DPD USER-DRUDE USER-EFF
   USER-FEP USER-H5MD USER-LB USER-MANIFOLD USER-MEAMC USER-MGPT USER-MISC
-  USER-MOLFILE USER-NETCDF USER-PHONON USER-QTB USER-REAXC USER-SMD
+  USER-MOFFF USER-MOLFILE USER-NETCDF USER-PHONON USER-QTB USER-REAXC USER-SMD
   USER-SMTBQ USER-SPH USER-TALLY USER-UEF USER-VTK USER-QUIP USER-QMMM)
 set(ACCEL_PACKAGES USER-OMP KOKKOS OPT USER-INTEL GPU)
 foreach(PKG ${DEFAULT_PACKAGES})
@@ -127,10 +127,6 @@ pkg_depends(USER-H5MD MPI)
 pkg_depends(USER-LB MPI)
 pkg_depends(USER-MISC MANYBODY)
 pkg_depends(USER-PHONON KSPACE)
-
-if(ENABLE_BODY AND ENABLE_POEMS)
-  message(FATAL_ERROR "BODY and POEMS cannot be enabled at the same time")
-endif()
 
 ######################################################
 # packages with special compiler needs or external libs
@@ -167,13 +163,6 @@ if(ENABLE_KSPACE)
   set_property(CACHE PACK_OPTIMIZATION PROPERTY STRINGS PACK_ARRAY PACK_POINTER PACK_MEMCPY)
   if(NOT PACK_OPTIMIZATION STREQUAL "PACK_ARRAY")
     add_definitions(-D${PACK_OPTIMIZATION})
-  endif()
-endif()
-
-if(ENABLE_MISC)
-  option(LAMMPS_XDR "include XDR compatibility files for doing particle dumps in XTC format" OFF)
-  if(LAMMPS_XDR)
-    add_definitions(-DLAMMPS_XDR) # for liblammps
   endif()
 endif()
 
@@ -247,8 +236,8 @@ if(ENABLE_LATTE)
     message(STATUS "LATTE not found - we will build our own")
     include(ExternalProject)
     ExternalProject_Add(latte_build
-      URL https://github.com/lanl/LATTE/archive/v1.0.1.tar.gz
-      URL_MD5 5137e28cb1a64444bd571c98c98a6eee
+      URL https://github.com/lanl/LATTE/archive/v1.1.1.tar.gz
+      URL_MD5 cb86f1d2473ce00aa61ff6a023154b03
       SOURCE_SUBDIR cmake
       CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR> -DCMAKE_POSITION_INDEPENDENT_CODE=${CMAKE_POSITION_INDEPENDENT_CODE}
       )
@@ -297,7 +286,21 @@ if(ENABLE_USER-VTK)
 endif()
 
 if(ENABLE_KIM)
-  find_package(KIM REQUIRED)
+  find_package(KIM QUIET)
+  if(NOT KIM_FOUND)
+    message(STATUS "KIM not found - we will build our own")
+    include(ExternalProject)
+    ExternalProject_Add(kim_build
+      URL https://github.com/openkim/kim-api/archive/v1.9.4.tar.gz
+      URL_MD5 f4d35a1705eed46d64c7c0ab448ff3e0
+      BUILD_IN_SOURCE 1
+      CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR>
+      )
+    ExternalProject_get_property(kim_build INSTALL_DIR)
+    set(KIM_INCLUDE_DIRS ${INSTALL_DIR}/include/kim-api-v1)
+    set(KIM_LIBRARIES ${INSTALL_DIR}/lib/libkim-api-v1.so)
+    list(APPEND LAMMPS_DEPS kim_build)
+  endif()
   list(APPEND LAMMPS_LINK_LIBS ${KIM_LIBRARIES})
   include_directories(${KIM_INCLUDE_DIRS})
 endif()

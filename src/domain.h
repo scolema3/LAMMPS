@@ -93,6 +93,7 @@ class Domain : protected Pointers {
   class Region **regions;                  // list of defined Regions
 
   int copymode;
+  enum{NO_REMAP,X_REMAP,V_REMAP};
 
   typedef Region *(*RegionCreator)(LAMMPS *,int,char**);
   typedef std::map<std::string,RegionCreator> RegionCreatorMap;
@@ -114,9 +115,8 @@ class Domain : protected Pointers {
   void minimum_image(double *);
   void minimum_image_once(double *);
   int closest_image(int, int);
-  int closest_image(double *, int);
-  void closest_image(const double * const, const double * const,
-                     double * const);
+  int closest_image(const double * const, int);
+  void closest_image(const double * const, const double * const, double * const);
   void remap(double *, imageint &);
   void remap(double *);
   void remap_near(double *, double *);

@@ -169,7 +169,7 @@ void ComputeRDF::init()
       cutghost = comm->cutghostuser;
 
     if (mycutneigh > cutghost)
-      error->all(FLERR,"Compure rdf cutoff exceeds ghost atom range - "
+      error->all(FLERR,"Compute rdf cutoff exceeds ghost atom range - "
                  "use comm_modify cutoff command");
     if (force->pair && mycutneigh < force->pair->cutforce + skin)
       if (comm->me == 0)
@@ -213,7 +213,7 @@ void ComputeRDF::init()
 
 /* ---------------------------------------------------------------------- */
 
-void ComputeRDF::init_list(int id, NeighList *ptr)
+void ComputeRDF::init_list(int /*id*/, NeighList *ptr)
 {
   list = ptr;
 }

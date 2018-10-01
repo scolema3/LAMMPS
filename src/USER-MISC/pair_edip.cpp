@@ -94,7 +94,7 @@ void PairEDIP::compute(int eflag, int vflag)
   int itype,jtype,ktype,ijparam,ikparam;
   double xtmp,ytmp,ztmp,evdwl;
   int *ilist,*jlist,*numneigh,**firstneigh;
-  register int preForceCoord_counter;
+  int preForceCoord_counter;
 
   double invR_ij;
   double invR_ik;
@@ -621,7 +621,7 @@ void PairEDIP::allocate()
    global settings
 ------------------------------------------------------------------------- */
 
-void PairEDIP::settings(int narg, char **arg)
+void PairEDIP::settings(int narg, char **/*arg*/)
 {
   if (narg != 0) error->all(FLERR,"Illegal pair_style command");
 }
@@ -877,7 +877,7 @@ void PairEDIP::read_file(char *file)
     fp = force->open_potential(file);
     if (fp == NULL) {
       char str[128];
-      sprintf(str,"Cannot open EDIP potential file %s",file);
+      snprintf(str,128,"Cannot open EDIP potential file %s",file);
       error->one(FLERR,str);
     }
   }

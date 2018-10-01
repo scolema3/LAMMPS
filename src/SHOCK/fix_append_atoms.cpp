@@ -29,8 +29,6 @@
 using namespace LAMMPS_NS;
 using namespace FixConst;
 
-enum{LAYOUT_UNIFORM,LAYOUT_NONUNIFORM,LAYOUT_TILED};    // several files
-
 #define BIG      1.0e30
 #define EPSILON  1.0e-6
 
@@ -233,7 +231,7 @@ int FixAppendAtoms::setmask()
 
 /* ---------------------------------------------------------------------- */
 
-void FixAppendAtoms::initial_integrate(int vflag)
+void FixAppendAtoms::initial_integrate(int /*vflag*/)
 {
   if (update->ntimestep % freq == 0) next_reneighbor = update->ntimestep;
 }
@@ -333,7 +331,7 @@ int FixAppendAtoms::get_spatial()
 
 /* ---------------------------------------------------------------------- */
 
-void FixAppendAtoms::post_force(int vflag)
+void FixAppendAtoms::post_force(int /*vflag*/)
 {
   double **f = atom->f;
   double **v = atom->v;
@@ -417,7 +415,7 @@ void FixAppendAtoms::pre_exchange()
     if (spatflag==1) if (get_spatial()==0) return;
 
     int addflag = 0;
-    if (comm->layout != LAYOUT_TILED) {
+    if (comm->layout != Comm::LAYOUT_TILED) {
       if (comm->myloc[2] == comm->procgrid[2]-1) addflag = 1;
     } else {
       if (comm->mysplit[2][1] == 1.0) addflag = 1;

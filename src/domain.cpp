@@ -44,10 +44,6 @@
 using namespace LAMMPS_NS;
 using namespace MathConst;
 
-enum{NO_REMAP,X_REMAP,V_REMAP};    // same as fix_deform.cpp
-enum{IGNORE,WARN,ERROR};           // same as thermo.cpp
-enum{LAYOUT_UNIFORM,LAYOUT_NONUNIFORM,LAYOUT_TILED};    // several files
-
 #define BIG   1.0e20
 #define SMALL 1.0e-4
 #define DELTAREGION 4
@@ -155,7 +151,7 @@ void Domain::init()
   for (int i = 0; i < modify->nfix; i++)
     if (strcmp(modify->fix[i]->style,"deform") == 0) {
       deform_flag = 1;
-      if (((FixDeform *) modify->fix[i])->remapflag == V_REMAP) {
+      if (((FixDeform *) modify->fix[i])->remapflag == Domain::V_REMAP) {
         deform_vremap = 1;
         deform_groupbit = modify->fix[i]->groupbit;
       }
@@ -276,7 +272,7 @@ void Domain::set_global_box()
 
 void Domain::set_lamda_box()
 {
-  if (comm->layout != LAYOUT_TILED) {
+  if (comm->layout != Comm::LAYOUT_TILED) {
     int *myloc = comm->myloc;
     double *xsplit = comm->xsplit;
     double *ysplit = comm->ysplit;
@@ -313,7 +309,7 @@ void Domain::set_local_box()
 {
   if (triclinic) return;
 
-  if (comm->layout != LAYOUT_TILED) {
+  if (comm->layout != Comm::LAYOUT_TILED) {
     int *myloc = comm->myloc;
     int *procgrid = comm->procgrid;
     double *xsplit = comm->xsplit;
@@ -762,7 +758,7 @@ void Domain::image_check()
 
       if (k == -1) {
         nmissing++;
-        if (lostbond == ERROR)
+        if (lostbond == Thermo::ERROR)
           error->one(FLERR,"Bond atom missing in image check");
         continue;
       }
@@ -785,7 +781,7 @@ void Domain::image_check()
   if (flagall && comm->me == 0)
     error->warning(FLERR,"Inconsistent image flags");
 
-  if (lostbond == WARN) {
+  if (lostbond == Thermo::WARN) {
     int all;
     MPI_Allreduce(&nmissing,&all,1,MPI_INT,MPI_SUM,world);
     if (all && comm->me == 0)
@@ -861,7 +857,7 @@ void Domain::box_too_small_check()
 
       if (k == -1) {
         nmissing++;
-        if (lostbond == ERROR)
+        if (lostbond == Thermo::ERROR)
           error->one(FLERR,"Bond atom missing in box size check");
         continue;
       }
@@ -875,7 +871,7 @@ void Domain::box_too_small_check()
     }
   }
 
-  if (lostbond == WARN) {
+  if (lostbond == Thermo::WARN) {
     int all;
     MPI_Allreduce(&nmissing,&all,1,MPI_INT,MPI_SUM,world);
     if (all && comm->me == 0)
@@ -1180,12 +1176,12 @@ int Domain::closest_image(int i, int j)
    if J is not a valid index like -1, just return it
 ------------------------------------------------------------------------- */
 
-int Domain::closest_image(double *pos, int j)
+int Domain::closest_image(const double * const pos, int j)
 {
   if (j < 0) return j;
 
-  int *sametag = atom->sametag;
-  double **x = atom->x;
+  const int * const sametag = atom->sametag;
+  const double * const * const x = atom->x;
 
   int closest = j;
   double delx = pos[0] - x[j][0];
@@ -1212,13 +1208,10 @@ int Domain::closest_image(double *pos, int j)
 /* ----------------------------------------------------------------------
    find and return Xj image = periodic image of Xj that is closest to Xi
    for triclinic, add/subtract tilt factors in other dims as needed
-   not currently used (Jan 2017):
-     used to be called by pair TIP4P styles but no longer,
-       due to use of other closest_image() method
+   called by ServerMD class and LammpsInterface in lib/atc.
 ------------------------------------------------------------------------- */
 
-void Domain::closest_image(const double * const xi, const double * const xj,
-                           double * const xjimage)
+void Domain::closest_image(const double * const xi, const double * const xj, double * const xjimage)
 {
   double dx = xj[0] - xi[0];
   double dy = xj[1] - xi[1];
@@ -1622,7 +1615,7 @@ void Domain::image_flip(int m, int n, int p)
    called from create_atoms() in library.cpp
 ------------------------------------------------------------------------- */
 
-int Domain::ownatom(int id, double *x, imageint *image, int shrinkexceed)
+int Domain::ownatom(int /*id*/, double *x, imageint *image, int shrinkexceed)
 {
   double lamda[3];
   double *coord,*blo,*bhi,*slo,*shi;

@@ -35,8 +35,6 @@
 
 using namespace LAMMPS_NS;
 
-enum{NO_REMAP,X_REMAP,V_REMAP};                   // same as fix_deform.cpp
-
 /* ---------------------------------------------------------------------- */
 
 ComputeTempDeformEff::ComputeTempDeformEff(LAMMPS *lmp, int narg, char **arg) :
@@ -76,7 +74,7 @@ void ComputeTempDeformEff::init()
   int i;
   for (i = 0; i < modify->nfix; i++)
     if (strcmp(modify->fix[i]->style,"deform") == 0) {
-      if (((FixDeform *) modify->fix[i])->remapflag == X_REMAP &&
+      if (((FixDeform *) modify->fix[i])->remapflag == Domain::X_REMAP &&
           comm->me == 0)
         error->warning(FLERR,"Using compute temp/deform/eff with inconsistent "
                        "fix deform remap option");
@@ -292,7 +290,7 @@ void ComputeTempDeformEff::remove_bias_all()
    assume remove_bias() was previously called
 ------------------------------------------------------------------------- */
 
-void ComputeTempDeformEff::restore_bias(int i, double *v)
+void ComputeTempDeformEff::restore_bias(int /*i*/, double *v)
 {
   v[0] += vbias[0];
   v[1] += vbias[1];

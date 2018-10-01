@@ -324,7 +324,11 @@ void FixSAEDvtk::init()
    only does something if nvalid = current timestep
 ------------------------------------------------------------------------- */
 
+<<<<<<< HEAD
 void FixSAEDvtk::setup(int vflag)
+=======
+void FixSAEDVTK::setup(int /*vflag*/)
+>>>>>>> origin/master
 {
   end_of_step();
 }
@@ -423,12 +427,12 @@ void FixSAEDvtk::invoke_vector(bigint ntimestep)
       fclose(fp);  
 
       char nName [128];
-      sprintf(nName,"%s.%d.vtk",filename,nOutput);
+      snprintf(nName,128,"%s.%d.vtk",filename,nOutput);
       fp = fopen(nName,"w");
 
       if (fp == NULL) {
         char str[128];
-        sprintf(str,"Cannot open fix saed/vtk file %s",nName);
+        snprintf(str,128,"Cannot open fix saed/vtk file %s",nName);
         error->one(FLERR,str);
       }
     }
@@ -549,13 +553,13 @@ void FixSAEDvtk::options(int narg, char **arg)
          filename = new char[n];
          strcpy(filename,arg[iarg+1]);
 
-        char nName [128];
-         sprintf(nName,"%s.%d.vtk",filename,nOutput);
+         char nName [128];
+         snprintf(nName,128,"%s.%d.vtk",filename,nOutput);
          fp = fopen(nName,"w");
 
         if (fp == NULL) {
           char str[128];
-          sprintf(str,"Cannot open fix saed/vtk file %s",nName);
+          snprintf(str,128,"Cannot open fix saed/vtk file %s",nName);
           error->one(FLERR,str);
         }    
       }

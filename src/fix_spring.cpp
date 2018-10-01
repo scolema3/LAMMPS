@@ -15,9 +15,9 @@
    Contributing author: Paul Crozier (SNL)
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
 #include "fix_spring.h"
 #include "atom.h"
 #include "update.h"
@@ -159,7 +159,7 @@ void FixSpring::min_setup(int vflag)
 
 /* ---------------------------------------------------------------------- */
 
-void FixSpring::post_force(int vflag)
+void FixSpring::post_force(int /*vflag*/)
 {
   if (styleflag == TETHER) spring_tether();
   else spring_couple();
@@ -335,7 +335,7 @@ void FixSpring::spring_couple()
 
 /* ---------------------------------------------------------------------- */
 
-void FixSpring::post_force_respa(int vflag, int ilevel, int iloop)
+void FixSpring::post_force_respa(int vflag, int ilevel, int /*iloop*/)
 {
   if (ilevel == ilevel_respa) post_force(vflag);
 }

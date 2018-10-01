@@ -11,7 +11,7 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <string.h>
+#include <cstring>
 #include "fix_freeze.h"
 #include "atom.h"
 #include "update.h"
@@ -83,7 +83,7 @@ void FixFreeze::setup(int vflag)
 
 /* ---------------------------------------------------------------------- */
 
-void FixFreeze::post_force(int vflag)
+void FixFreeze::post_force(int /*vflag*/)
 {
   double **f = atom->f;
   double **torque = atom->torque;
@@ -110,7 +110,7 @@ void FixFreeze::post_force(int vflag)
 
 /* ---------------------------------------------------------------------- */
 
-void FixFreeze::post_force_respa(int vflag, int ilevel, int iloop)
+void FixFreeze::post_force_respa(int vflag, int /*ilevel*/, int /*iloop*/)
 {
   post_force(vflag);
 }

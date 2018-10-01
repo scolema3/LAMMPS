@@ -14,13 +14,13 @@
 /* ----------------------------------------------------------------------
    Contributing authors: Koenraad Janssens and David Olmsted (SNL)
    Modification for bcc provided by: Tegar Wicaksono (UBC)
-   For a tutorial, please see "Order parameters of crystals in LAMMPS" 
-   			(https://dx.doi.org/10.6084/m9.figshare.1488628.v1
+   For a tutorial, please see "Order parameters of crystals in LAMMPS"
+            (https://dx.doi.org/10.6084/m9.figshare.1488628.v1
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstring>
+#include <cstdlib>
 #include <mpi.h>
 #include "fix_orient_bcc.h"
 #include "atom.h"
@@ -57,7 +57,7 @@ static const char cite_fix_orient_bcc[] =
 /* ---------------------------------------------------------------------- */
 
 FixOrientBCC::FixOrientBCC(LAMMPS *lmp, int narg, char **arg) :
-  Fix(lmp, narg, arg), 
+  Fix(lmp, narg, arg),
   xifilename(NULL), chifilename(NULL), order(NULL), nbr(NULL), sort(NULL), list(NULL)
 {
   if (lmp->citeme) lmp->citeme->add(cite_fix_orient_bcc);
@@ -230,7 +230,7 @@ void FixOrientBCC::init()
 
 /* ---------------------------------------------------------------------- */
 
-void FixOrientBCC::init_list(int id, NeighList *ptr)
+void FixOrientBCC::init_list(int /*id*/, NeighList *ptr)
 {
   list = ptr;
 }
@@ -250,7 +250,7 @@ void FixOrientBCC::setup(int vflag)
 
 /* ---------------------------------------------------------------------- */
 
-void FixOrientBCC::post_force(int vflag)
+void FixOrientBCC::post_force(int /*vflag*/)
 {
   int i,j,k,ii,jj,inum,jnum,m,n,nn,nsort;
   tagint id_self;
@@ -471,7 +471,7 @@ void FixOrientBCC::post_force(int vflag)
 
 /* ---------------------------------------------------------------------- */
 
-void FixOrientBCC::post_force_respa(int vflag, int ilevel, int iloop)
+void FixOrientBCC::post_force_respa(int vflag, int ilevel, int /*iloop*/)
 {
   if (ilevel == ilevel_respa) post_force(vflag);
 }
@@ -488,7 +488,7 @@ double FixOrientBCC::compute_scalar()
 /* ---------------------------------------------------------------------- */
 
 int FixOrientBCC::pack_forward_comm(int n, int *list, double *buf,
-                                    int pbc_flag, int *pbc)
+                                    int /*pbc_flag*/, int * /*pbc*/)
 {
   int i,j,k,num;
   tagint id;

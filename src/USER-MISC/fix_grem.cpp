@@ -22,9 +22,9 @@
                          Tom Keyes (Boston University)
 ------------------------------------------------------------------------- */
 
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstring>
+#include <cstdlib>
+#include <cmath>
 #include "comm.h"
 #include "fix_grem.h"
 #include "atom.h"
@@ -256,7 +256,7 @@ void FixGrem::min_setup(int vflag)
 
 /* ---------------------------------------------------------------------- */
 
-void FixGrem::post_force(int vflag)
+void FixGrem::post_force(int /*vflag*/)
 {
   double **f = atom->f;
   int *mask = atom->mask;

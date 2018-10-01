@@ -15,8 +15,8 @@
    Contributing author: Pavel Elkind (Gothenburg University)
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 #include "pair_tip4p_cut.h"
 #include "atom.h"
 #include "force.h"
@@ -443,7 +443,7 @@ void PairTIP4PCut::init_style()
    init for one type pair i,j and corresponding j,i
 ------------------------------------------------------------------------- */
 
-double PairTIP4PCut::init_one(int i, int j)
+double PairTIP4PCut::init_one(int /*i*/, int /*j*/)
 {
   // include TIP4P qdist in full cutoff, qdist = 0.0 if not TIP4P
 

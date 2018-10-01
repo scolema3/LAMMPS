@@ -11,9 +11,9 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstring>
+#include <cstdlib>
 #include "compute_coord_atom.h"
 #include "compute_orientorder_atom.h"
 #include "atom.h"
@@ -153,7 +153,7 @@ void ComputeCoordAtom::init()
 
 /* ---------------------------------------------------------------------- */
 
-void ComputeCoordAtom::init_list(int id, NeighList *ptr)
+void ComputeCoordAtom::init_list(int /*id*/, NeighList *ptr)
 {
   list = ptr;
 }
@@ -311,7 +311,7 @@ void ComputeCoordAtom::compute_peratom()
 /* ---------------------------------------------------------------------- */
 
 int ComputeCoordAtom::pack_forward_comm(int n, int *list, double *buf,
-                                        int pbc_flag, int *pbc)
+                                        int /*pbc_flag*/, int * /*pbc*/)
 {
   int i,m=0,j;
   for (i = 0; i < n; ++i) {

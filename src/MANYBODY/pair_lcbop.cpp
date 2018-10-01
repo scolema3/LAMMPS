@@ -16,10 +16,10 @@
      based on pair_airebo by Ase Henry (MIT)
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <mpi.h>
 #include "pair_lcbop.h"
 #include "atom.h"
@@ -44,8 +44,10 @@ using namespace MathConst;
 
 /* ---------------------------------------------------------------------- */
 
-PairLCBOP::PairLCBOP(LAMMPS *lmp) : Pair(lmp) {
+PairLCBOP::PairLCBOP(LAMMPS *lmp) : Pair(lmp)
+{
   single_enable = 0;
+  restartinfo = 0;
   one_coeff = 1;
   manybody_flag = 1;
   ghostneigh = 1;
@@ -119,7 +121,7 @@ void PairLCBOP::allocate()
    global settings
 ------------------------------------------------------------------------- */
 
-void PairLCBOP::settings(int narg, char **arg) {
+void PairLCBOP::settings(int narg, char **/*arg*/) {
   if( narg != 0 ) error->all(FLERR,"Illegal pair_style command");
 }
 
@@ -351,7 +353,7 @@ void PairLCBOP::SR_neigh()
   Short range forces and energy
 ------------------------------------------------------------------------- */
 
-void PairLCBOP::FSR(int eflag, int vflag)
+void PairLCBOP::FSR(int eflag, int /*vflag*/)
 {
   int i,j,jj,ii,inum;
   tagint itag,jtag;
@@ -447,7 +449,7 @@ void PairLCBOP::FSR(int eflag, int vflag)
    compute long range forces and energy
 ------------------------------------------------------------------------- */
 
-void PairLCBOP::FLR(int eflag, int vflag)
+void PairLCBOP::FLR(int eflag, int /*vflag*/)
 {
   int i,j,jj,ii;
   tagint itag,jtag;
@@ -976,7 +978,7 @@ void PairLCBOP::read_file(char *filename)
     FILE *fp = force->open_potential(filename);
     if (fp == NULL) {
       char str[128];
-      sprintf(str,"Cannot open LCBOP potential file %s",filename);
+      snprintf(str,128,"Cannot open LCBOP potential file %s",filename);
       error->one(FLERR,str);
     }
 

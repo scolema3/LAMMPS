@@ -15,9 +15,9 @@
    Charges by type and after option: Agilio Padua (Univ Blaise Pascal & CNRS)
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstring>
+#include <cstdlib>
 #include "fix_adapt_fep.h"
 #include "atom.h"
 #include "update.h"
@@ -387,7 +387,7 @@ void FixAdaptFEP::init()
 
 /* ---------------------------------------------------------------------- */
 
-void FixAdaptFEP::setup_pre_force(int vflag)
+void FixAdaptFEP::setup_pre_force(int /*vflag*/)
 {
   change_settings();
 }
@@ -402,7 +402,7 @@ void FixAdaptFEP::setup_pre_force_respa(int vflag, int ilevel)
 
 /* ---------------------------------------------------------------------- */
 
-void FixAdaptFEP::pre_force(int vflag)
+void FixAdaptFEP::pre_force(int /*vflag*/)
 {
   if (nevery == 0) return;
 

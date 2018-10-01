@@ -11,10 +11,10 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
+#include <cctype>
 #include "pair_hybrid.h"
 #include "atom.h"
 #include "force.h"
@@ -844,7 +844,7 @@ void PairHybrid::modify_params(int narg, char **arg)
    store a local per pair style override for special_lj and special_coul
 ------------------------------------------------------------------------- */
 
-void PairHybrid::modify_special(int m, int narg, char **arg)
+void PairHybrid::modify_special(int m, int /*narg*/, char **arg)
 {
   double special[4];
   int i;

@@ -13,12 +13,13 @@
 
    changes 2008-2011 by Axel Kohlmeyer <akohlmey@gmail.com>
 */
+
 #ifndef LMP_FFT_KISSFFT
 #define LMP_FFT_KISSFFT
 
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
 
 #if defined(_OPENMP)
 #include <omp.h>

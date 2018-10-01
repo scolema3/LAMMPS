@@ -16,8 +16,9 @@
    Incorporating SAED: Shawn Coleman (Arkansas)
 ------------------------------------------------------------------------- */
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
 #include "fix_saed_vtk.h"
 #include "update.h"
 #include "modify.h"
@@ -29,7 +30,6 @@
 #include "memory.h"
 #include "error.h"
 #include "force.h"
-#include <math.h>
 #include "domain.h"
 
 using namespace LAMMPS_NS;
@@ -44,7 +44,7 @@ enum{FIRST,MULTI};
 /* ---------------------------------------------------------------------- */
 
 FixSAEDVTK::FixSAEDVTK(LAMMPS *lmp, int narg, char **arg) :
-  Fix(lmp, narg, arg), ids(NULL), fp(NULL), vector(NULL), 
+  Fix(lmp, narg, arg), ids(NULL), fp(NULL), vector(NULL),
   vector_total(NULL), vector_list(NULL), compute_saed(NULL), filename(NULL)
 {
   if (narg < 7) error->all(FLERR,"Illegal fix saed/vtk command");
@@ -325,7 +325,7 @@ void FixSAEDVTK::init()
    only does something if nvalid = current timestep
 ------------------------------------------------------------------------- */
 
-void FixSAEDVTK::setup(int vflag)
+void FixSAEDVTK::setup(int /*vflag*/)
 {
   end_of_step();
 }
@@ -424,12 +424,12 @@ void FixSAEDVTK::invoke_vector(bigint ntimestep)
       fclose(fp);
 
       char nName [128];
-      sprintf(nName,"%s.%d.vtk",filename,nOutput);
+      snprintf(nName,128,"%s.%d.vtk",filename,nOutput);
       fp = fopen(nName,"w");
 
       if (fp == NULL) {
         char str[128];
-        sprintf(str,"Cannot open fix saed/vtk file %s",nName);
+        snprintf(str,128,"Cannot open fix saed/vtk file %s",nName);
         error->one(FLERR,str);
       }
     }
@@ -550,13 +550,13 @@ void FixSAEDVTK::options(int narg, char **arg)
          filename = new char[n];
          strcpy(filename,arg[iarg+1]);
 
-        char nName [128];
-         sprintf(nName,"%s.%d.vtk",filename,nOutput);
+         char nName [128];
+         snprintf(nName,128,"%s.%d.vtk",filename,nOutput);
          fp = fopen(nName,"w");
 
         if (fp == NULL) {
           char str[128];
-          sprintf(str,"Cannot open fix saed/vtk file %s",nName);
+          snprintf(str,128,"Cannot open fix saed/vtk file %s",nName);
           error->one(FLERR,str);
         }
       }

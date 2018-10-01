@@ -11,8 +11,8 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 #include "angle_cosine.h"
 #include "atom.h"
 #include "neighbor.h"
@@ -172,7 +172,7 @@ void AngleCosine::coeff(int narg, char **arg)
 
 /* ---------------------------------------------------------------------- */
 
-double AngleCosine::equilibrium_angle(int i)
+double AngleCosine::equilibrium_angle(int /*i*/)
 {
   return MY_PI;
 }

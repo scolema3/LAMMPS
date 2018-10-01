@@ -1,5 +1,5 @@
 #include "manifold_thylakoid.h"
-#include <math.h>
+#include <cmath>
 
 #include "comm.h"
 #include "domain.h" // For some checks regarding the simulation box.
@@ -12,7 +12,7 @@ using namespace LAMMPS_NS;
 using namespace user_manifold;
 
 
-manifold_thylakoid::manifold_thylakoid( LAMMPS *lmp, int narg, char ** arg)
+manifold_thylakoid::manifold_thylakoid( LAMMPS *lmp, int /*narg*/, char ** /*arg*/)
   : manifold(lmp)
 {
   // You can NOT depend on proper construction of the domains in
@@ -85,7 +85,7 @@ double manifold_thylakoid::g( const double *x )
     error->one(FLERR,msg);
   }
   double con_val = p->g(x);
-  if( ISFINITE(con_val) ){
+  if( std::isfinite(con_val) ){
     return con_val;
   }else{
     char msg[2048];
@@ -107,7 +107,7 @@ void   manifold_thylakoid::n( const double *x, double *n )
     error->one(FLERR,msg);
   }
   p->n(x,n);
-  if( ISFINITE(n[0]) && ISFINITE(n[1]) && ISFINITE(n[2]) ){
+  if( std::isfinite(n[0]) && std::isfinite(n[1]) && std::isfinite(n[2]) ){
     return;
   }else{
     char msg[2048];
@@ -117,7 +117,7 @@ void   manifold_thylakoid::n( const double *x, double *n )
   }
 }
 
-thyla_part *manifold_thylakoid::get_thyla_part( const double *x, int *err_flag, std::size_t *idx )
+thyla_part *manifold_thylakoid::get_thyla_part( const double *x, int * /*err_flag*/, std::size_t *idx )
 {
 
   for( std::size_t i = 0; i < parts.size(); ++i ){

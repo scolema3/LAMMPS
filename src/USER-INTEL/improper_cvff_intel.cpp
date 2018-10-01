@@ -16,8 +16,8 @@
 ------------------------------------------------------------------------- */
 
 #include <mpi.h>
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 #include "improper_cvff_intel.h"
 #include "atom.h"
 #include "comm.h"
@@ -428,7 +428,7 @@ void ImproperCvffIntel::init_style()
 
 template <class flt_t, class acc_t>
 void ImproperCvffIntel::pack_force_const(ForceConst<flt_t> &fc,
-                                             IntelBuffers<flt_t,acc_t> *buffers)
+                                             IntelBuffers<flt_t,acc_t> * /*buffers*/)
 {
   const int bp1 = atom->nimpropertypes + 1;
   fc.set_ntypes(bp1,memory);

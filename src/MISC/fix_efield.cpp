@@ -16,9 +16,9 @@
                         Stan Moore (Sandia) for dipole terms
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstring>
+#include <cstdlib>
 #include "fix_efield.h"
 #include "atom.h"
 #include "update.h"
@@ -412,7 +412,7 @@ void FixEfield::post_force(int vflag)
 
 /* ---------------------------------------------------------------------- */
 
-void FixEfield::post_force_respa(int vflag, int ilevel, int iloop)
+void FixEfield::post_force_respa(int vflag, int ilevel, int /*iloop*/)
 {
   if (ilevel == ilevel_respa) post_force(vflag);
 }

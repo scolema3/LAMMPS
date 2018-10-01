@@ -15,10 +15,10 @@
    Contributing author: Aidan Thompson (SNL)
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "pair_sw.h"
 #include "atom.h"
 #include "neighbor.h"
@@ -239,7 +239,7 @@ void PairSW::allocate()
    global settings
 ------------------------------------------------------------------------- */
 
-void PairSW::settings(int narg, char **arg)
+void PairSW::settings(int narg, char **/*arg*/)
 {
   if (narg != 0) error->all(FLERR,"Illegal pair_style command");
 }
@@ -363,7 +363,7 @@ void PairSW::read_file(char *file)
     fp = force->open_potential(file);
     if (fp == NULL) {
       char str[128];
-      sprintf(str,"Cannot open Stillinger-Weber potential file %s",file);
+      snprintf(str,128,"Cannot open Stillinger-Weber potential file %s",file);
       error->one(FLERR,str);
     }
   }

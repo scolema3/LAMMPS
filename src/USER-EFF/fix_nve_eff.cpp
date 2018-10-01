@@ -15,17 +15,16 @@
    Contributing author: Andres Jaramillo-Botero (Caltech)
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
 #include "fix_nve_eff.h"
 #include "atom.h"
 #include "force.h"
 #include "update.h"
 #include "respa.h"
 #include "error.h"
-#include <math.h>
 #include "domain.h"
 
 using namespace LAMMPS_NS;
@@ -69,7 +68,7 @@ void FixNVEEff::init()
    allow for both per-type and per-atom mass
 ------------------------------------------------------------------------- */
 
-void FixNVEEff::initial_integrate(int vflag)
+void FixNVEEff::initial_integrate(int /*vflag*/)
 {
   double dtfm;
 
@@ -146,7 +145,7 @@ void FixNVEEff::final_integrate()
 
 /* ---------------------------------------------------------------------- */
 
-void FixNVEEff::initial_integrate_respa(int vflag, int ilevel, int iloop)
+void FixNVEEff::initial_integrate_respa(int vflag, int ilevel, int /*iloop*/)
 {
   dtv = step_respa[ilevel];
   dtf = 0.5 * step_respa[ilevel] * force->ftm2v;
@@ -160,7 +159,7 @@ void FixNVEEff::initial_integrate_respa(int vflag, int ilevel, int iloop)
 
 /* ---------------------------------------------------------------------- */
 
-void FixNVEEff::final_integrate_respa(int ilevel, int iloop)
+void FixNVEEff::final_integrate_respa(int ilevel, int /*iloop*/)
 {
   dtf = 0.5 * step_respa[ilevel] * force->ftm2v;
   final_integrate();

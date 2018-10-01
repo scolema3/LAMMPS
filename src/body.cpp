@@ -11,9 +11,9 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
 #include "body.h"
 #include "error.h"
 
@@ -21,7 +21,7 @@ using namespace LAMMPS_NS;
 
 /* ---------------------------------------------------------------------- */
 
-Body::Body(LAMMPS *lmp, int narg, char **arg) : Pointers(lmp)
+Body::Body(LAMMPS *lmp, int /*narg*/, char **arg) : Pointers(lmp)
 {
   int n = strlen(arg[0]) + 1;
   style = new char[n];

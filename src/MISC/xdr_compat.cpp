@@ -1,8 +1,6 @@
-#ifdef LAMMPS_XDR
-
-#include <stdlib.h>
-#include <limits.h>
-#include <string.h>
+#include <cstdlib>
+#include <climits>
+#include <cstring>
 #include "xdr_compat.h"
 
 /* This file is needed for systems, that do not provide XDR support
@@ -652,7 +650,7 @@ xdrstdio_setpos (XDR *xdrs, unsigned int pos)
 }
 
 static xdr_int32_t *
-xdrstdio_inline (XDR *xdrs, int len)
+xdrstdio_inline (XDR * /*xdrs*/, int /*len*/)
 {
   /*
    * Must do some work to implement this: must insure
@@ -714,9 +712,3 @@ xdrstdio_putuint32 (XDR *xdrs, xdr_uint32_t *ip)
 }
 #endif
 
-#else
-/* satisfy compilers that do not like to compile empty files. */
-static void i_am_a_dummy_subroutine(void) {
-  return;
-}
-#endif

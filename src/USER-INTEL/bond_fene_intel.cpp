@@ -15,8 +15,8 @@
    Contributing author: Stan Moore (Sandia)
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 #include "bond_fene_intel.h"
 #include "atom.h"
 #include "modify.h"
@@ -291,7 +291,7 @@ void BondFENEIntel::init_style()
 
 template <class flt_t, class acc_t>
 void BondFENEIntel::pack_force_const(ForceConst<flt_t> &fc,
-                                         IntelBuffers<flt_t,acc_t> *buffers)
+                                         IntelBuffers<flt_t,acc_t> * /*buffers*/)
 {
   const int bp1 = atom->nbondtypes + 1;
   fc.set_ntypes(bp1,memory);

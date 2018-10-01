@@ -15,8 +15,8 @@
    Contributing author: Carsten Svaneborg, science@zqex.dk
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 #include "bond_harmonic_shift.h"
 #include "atom.h"
 #include "neighbor.h"
@@ -203,8 +203,8 @@ void BondHarmonicShift::write_data(FILE *fp)
 
 /* ---------------------------------------------------------------------- */
 
-double BondHarmonicShift::single(int type, double rsq, int i, int j,
-				 double &fforce)
+double BondHarmonicShift::single(int type, double rsq, int /*i*/, int /*j*/,
+                                 double &fforce)
 {
   double r = sqrt(rsq);
   double dr = r - r0[type];

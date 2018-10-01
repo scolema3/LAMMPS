@@ -16,9 +16,9 @@
 ------------------------------------------------------------------------- */
 
 #include <mpi.h>
-#include <math.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstring>
+#include <cstdlib>
 #include "compute_temp_region_eff.h"
 #include "atom.h"
 #include "update.h"
@@ -263,7 +263,7 @@ void ComputeTempRegionEff::remove_bias_all()
    assume remove_bias() was previously called
 ------------------------------------------------------------------------- */
 
-void ComputeTempRegionEff::restore_bias(int i, double *v)
+void ComputeTempRegionEff::restore_bias(int /*i*/, double *v)
 {
   v[0] += vbias[0];
   v[1] += vbias[1];

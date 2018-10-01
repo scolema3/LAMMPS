@@ -17,9 +17,9 @@
    see Reed, Fried, Joannopoulos, Phys Rev Lett, 90, 235503 (2003)
 ------------------------------------------------------------------------- */
 
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstring>
+#include <cstdlib>
+#include <cmath>
 #include "fix_msst.h"
 #include "atom.h"
 #include "force.h"
@@ -357,7 +357,7 @@ void FixMSST::init()
    compute T,P before integrator starts
 ------------------------------------------------------------------------- */
 
-void FixMSST::setup(int vflag)
+void FixMSST::setup(int /*vflag*/)
 {
   lagrangian_position = 0.0;
 
@@ -442,7 +442,7 @@ void FixMSST::setup(int vflag)
    1st half of Verlet update
 ------------------------------------------------------------------------- */
 
-void FixMSST::initial_integrate(int vflag)
+void FixMSST::initial_integrate(int /*vflag*/)
 {
   int i,k;
   double p_msst;                       // MSST driving pressure

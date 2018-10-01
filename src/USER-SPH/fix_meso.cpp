@@ -11,12 +11,11 @@
  See the README file in the top-level LAMMPS directory.
  ------------------------------------------------------------------------- */
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
+#include <cmath>
+#include <cstdlib>
 #include "fix_meso.h"
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
 #include "atom.h"
 #include "comm.h"
 #include "force.h"
@@ -65,7 +64,7 @@ void FixMeso::init() {
   dtf = 0.5 * update->dt * force->ftm2v;
 }
 
-void FixMeso::setup_pre_force(int vflag)
+void FixMeso::setup_pre_force(int /*vflag*/)
 {
   // set vest equal to v
   double **v = atom->v;
@@ -88,7 +87,7 @@ void FixMeso::setup_pre_force(int vflag)
  allow for both per-type and per-atom mass
  ------------------------------------------------------------------------- */
 
-void FixMeso::initial_integrate(int vflag) {
+void FixMeso::initial_integrate(int /*vflag*/) {
   // update v and x and rho and e of atoms in group
 
   double **x = atom->x;

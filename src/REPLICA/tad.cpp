@@ -21,9 +21,9 @@
 
 #include "lmptype.h"
 #include <mpi.h>
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
 #include "tad.h"
 #include "universe.h"
 #include "update.h"
@@ -264,7 +264,7 @@ void TAD::command(int narg, char **arg)
 
   update->whichflag = 1;
   lmp->init();
-  update->integrate->setup();
+  update->integrate->setup(1);
 
   // main loop: look for events until out of time
   // (1) dynamics, store state, quench, check event, restore state
@@ -342,7 +342,7 @@ void TAD::command(int narg, char **arg)
 
       update->whichflag = 1;
       lmp->init();
-      update->integrate->setup();
+      update->integrate->setup(1);
 
     // write restart file of hot coords
 
@@ -448,7 +448,7 @@ void TAD::dynamics()
   update->nsteps = t_event;
 
   lmp->init();
-  update->integrate->setup();
+  update->integrate->setup(1);
   // this may be needed if don't do full init
   //modify->addstep_compute_all(update->ntimestep);
   int ncalls = neighbor->ncalls;
@@ -712,10 +712,7 @@ void TAD::perform_neb(int ievent)
   args[0] = (char *) "neb";
   args[1] = (char *) "all";
   args[2] = (char *) "neb";
-  char str[128];
-  args[3] = str;
-  double kspring = 1.0;
-  sprintf(args[3],"%f",kspring);
+  args[3] = (char *) "1.0";
   modify->add_fix(narg2,args);
   fix_neb = (Fix *) modify->fix[modify->nfix-1];
   delete [] args;

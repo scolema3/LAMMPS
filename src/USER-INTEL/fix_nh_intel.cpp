@@ -28,8 +28,8 @@
 #include "update.h"
 
 #include <cstring>
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 
 using namespace LAMMPS_NS;
 using namespace FixConst;
@@ -464,7 +464,6 @@ void FixNHIntel::nve_x()
 {
   double * _noalias const x = atom->x[0];
   double * _noalias const v = atom->v[0];
-  const double * _noalias const f = atom->f[0];
 
   // x update by full step only for atoms in group
 

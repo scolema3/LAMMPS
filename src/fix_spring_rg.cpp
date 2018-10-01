@@ -16,9 +16,9 @@
                         Paul Crozier (SNL)
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
 #include "fix_spring_rg.h"
 #include "atom.h"
 #include "update.h"
@@ -95,7 +95,7 @@ void FixSpringRG::setup(int vflag)
 
 /* ---------------------------------------------------------------------- */
 
-void FixSpringRG::post_force(int vflag)
+void FixSpringRG::post_force(int /*vflag*/)
 {
   // compute current Rg and center-of-mass
 
@@ -142,7 +142,7 @@ void FixSpringRG::post_force(int vflag)
 
 /* ---------------------------------------------------------------------- */
 
-void FixSpringRG::post_force_respa(int vflag, int ilevel, int iloop)
+void FixSpringRG::post_force_respa(int vflag, int ilevel, int /*iloop*/)
 {
   if (ilevel == ilevel_respa) post_force(vflag);
 }

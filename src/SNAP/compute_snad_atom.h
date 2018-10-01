@@ -37,7 +37,7 @@ class ComputeSNADAtom : public Compute {
 
  private:
   int nmax, njmax, diagonalstyle;
-  int ncoeff, twoncoeff, threencoeff, ncoeffq, twoncoeffq, threencoeffq;
+  int ncoeff, nperdim, yoffset, zoffset;
   double **cutsq;
   class NeighList *list;
   double **snad;
@@ -47,6 +47,7 @@ class ComputeSNADAtom : public Compute {
   class SNA** snaptr;
   double cutmax;
   int quadraticflag;
+  int nthreads;
 };
 
 }
@@ -66,11 +67,15 @@ E: Compute snad/atom requires a pair style be defined
 
 Self-explanatory.
 
-E: Compute snad/atom cutoff is longer than pairwise cutoff
+E: Compute sna/atom cutoff is longer than pairwise cutoff
+
+UNDOCUMENTED
+
+W: More than one compute snad/atom
 
 Self-explanatory.
 
-W: More than one compute snad/atom
+U: Compute snad/atom cutoff is longer than pairwise cutoff
 
 Self-explanatory.
 

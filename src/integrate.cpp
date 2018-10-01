@@ -11,7 +11,7 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <stdlib.h>
+#include <cstdlib>
 #include "integrate.h"
 #include "update.h"
 #include "force.h"
@@ -24,7 +24,7 @@ using namespace LAMMPS_NS;
 
 /* ---------------------------------------------------------------------- */
 
-Integrate::Integrate(LAMMPS *lmp, int narg, char **arg) : Pointers(lmp)
+Integrate::Integrate(LAMMPS *lmp, int /*narg*/, char **/*arg*/) : Pointers(lmp)
 {
   elist_global = elist_atom = NULL;
   vlist_global = vlist_atom = NULL;

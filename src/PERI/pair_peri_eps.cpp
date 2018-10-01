@@ -15,9 +15,9 @@
    Contributing author: Rezwanur Rahman, John Foster (UTSA)
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
 #include "pair_peri_eps.h"
 #include "atom.h"
 #include "domain.h"
@@ -434,7 +434,7 @@ void PairPeriEPS::allocate()
    global settings
 ------------------------------------------------------------------------- */
 
-void PairPeriEPS::settings(int narg, char **arg)
+void PairPeriEPS::settings(int narg, char **/*arg*/)
 {
   if (narg) error->all(FLERR,"Illegal pair_style command");
 }
@@ -799,7 +799,7 @@ double PairPeriEPS::compute_DeviatoricForceStateNorm(int i)
 ---------------------------------------------------------------------- */
 
 int PairPeriEPS::pack_forward_comm(int n, int *list, double *buf,
-                                   int pbc_flag, int *pbc)
+                                   int /*pbc_flag*/, int * /*pbc*/)
 {
   int i,j,m;
 

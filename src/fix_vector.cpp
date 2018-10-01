@@ -11,7 +11,7 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <string.h>
+#include <cstring>
 #include "fix_vector.h"
 #include "update.h"
 #include "force.h"
@@ -239,7 +239,7 @@ void FixVector::init()
    only does something if nvalid = current timestep
 ------------------------------------------------------------------------- */
 
-void FixVector::setup(int vflag)
+void FixVector::setup(int /*vflag*/)
 {
   end_of_step();
 }
@@ -296,7 +296,7 @@ void FixVector::end_of_step()
     // evaluate equal-style or vector-style variable
 
     } else if (which[i] == VARIABLE) {
-      if (argindex[i] == 0) 
+      if (argindex[i] == 0)
         result[i] = input->variable->compute_equal(m);
       else {
         double *varvec;

@@ -11,8 +11,8 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include "fix_ave_atom.h"
 #include "atom.h"
 #include "domain.h"
@@ -36,7 +36,7 @@ enum{X,V,F,COMPUTE,FIX,VARIABLE};
 
 FixAveAtom::FixAveAtom(LAMMPS *lmp, int narg, char **arg) :
   Fix(lmp, narg, arg),
-  nvalues(0), which(NULL), argindex(NULL), value2index(NULL), 
+  nvalues(0), which(NULL), argindex(NULL), value2index(NULL),
   ids(NULL), array(NULL)
 {
   if (narg < 7) error->all(FLERR,"Illegal fix ave/atom command");
@@ -283,7 +283,7 @@ void FixAveAtom::init()
    only does something if nvalid = current timestep
 ------------------------------------------------------------------------- */
 
-void FixAveAtom::setup(int vflag)
+void FixAveAtom::setup(int /*vflag*/)
 {
   end_of_step();
 }
@@ -432,7 +432,7 @@ void FixAveAtom::grow_arrays(int nmax)
    copy values within local atom-based array
 ------------------------------------------------------------------------- */
 
-void FixAveAtom::copy_arrays(int i, int j, int delflag)
+void FixAveAtom::copy_arrays(int i, int j, int /*delflag*/)
 {
   for (int m = 0; m < nvalues; m++)
     array[j][m] = array[i][m];

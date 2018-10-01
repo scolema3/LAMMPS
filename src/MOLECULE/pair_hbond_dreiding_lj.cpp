@@ -15,10 +15,10 @@
    Contributing author: Tod A Pascal (Caltech)
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "pair_hbond_dreiding_lj.h"
 #include "atom.h"
 #include "atom_vec.h"
@@ -468,7 +468,7 @@ double PairHbondDreidingLJ::init_one(int i, int j)
 
 double PairHbondDreidingLJ::single(int i, int j, int itype, int jtype,
                                    double rsq,
-                                   double factor_coul, double factor_lj,
+                                   double /*factor_coul*/, double /*factor_lj*/,
                                    double &fforce)
 {
   int k,kk,ktype,knum,m;

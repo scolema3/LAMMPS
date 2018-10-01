@@ -11,7 +11,7 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <string.h>
+#include <cstring>
 #include "verlet_lrt_intel.h"
 #include "neighbor.h"
 #include "domain.h"
@@ -142,7 +142,7 @@ void VerletLRTIntel::setup(int flag)
   domain->image_check();
   domain->box_too_small_check();
   modify->setup_pre_neighbor();
-  neighbor->build();
+  neighbor->build(1);
   neighbor->ncalls = 0;
 
   // compute all forces
@@ -157,7 +157,7 @@ void VerletLRTIntel::setup(int flag)
   pthread_create(&_kspace_thread, &_kspace_attr,
                  &VerletLRTIntel::k_launch_loop, this);
   #elif defined(_LMP_INTEL_LRT_11)
-  std::thread kspace_thread;
+  std::thread _kspace_thread;
   if (kspace_compute_flag)
     _kspace_thread=std::thread([=]{ _intel_kspace->compute_first(eflag,
                                                                  vflag); });
@@ -276,7 +276,7 @@ void VerletLRTIntel::run(int n)
         modify->pre_neighbor();
         timer->stamp(Timer::MODIFY);
       }
-      neighbor->build();
+      neighbor->build(1);
       timer->stamp(Timer::NEIGH);
     }
 

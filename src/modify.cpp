@@ -11,8 +11,8 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include "modify.h"
 #include "style_compute.h"
 #include "style_fix.h"
@@ -239,7 +239,8 @@ void Modify::init()
   for (i = 0; i < nfix; i++)
     if (!fix[i]->dynamic_group_allow && group->dynamic[fix[i]->igroup]) {
       char str[128];
-      sprintf(str,"Fix %s does not allow use of dynamic group",fix[i]->id);
+      snprintf(str,128,
+               "Fix %s does not allow use of dynamic group",fix[i]->id);
       error->all(FLERR,str);
     }
 
@@ -247,7 +248,7 @@ void Modify::init()
     if (!compute[i]->dynamic_group_allow &&
         group->dynamic[compute[i]->igroup]) {
       char str[128];
-      sprintf(str,"Compute %s does not allow use of dynamic group",fix[i]->id);
+      snprintf(str,128,"Compute %s does not allow use of dynamic group",fix[i]->id);
       error->all(FLERR,str);
     }
 
@@ -889,7 +890,7 @@ void Modify::add_fix(int narg, char **arg, int trysuffix)
 
   if (fix[ifix] == NULL) {
     char str[128];
-    sprintf(str,"Unknown fix style %s",arg[2]);
+    snprintf(str,128,"Unknown fix style %s",arg[2]);
     error->all(FLERR,str);
   }
 
@@ -1191,7 +1192,7 @@ void Modify::add_compute(int narg, char **arg, int trysuffix)
 
   if (compute[ncompute] == NULL) {
     char str[128];
-    sprintf(str,"Unknown compute style %s",arg[2]);
+    snprintf(str,128,"Unknown compute style %s",arg[2]);
     error->all(FLERR,str);
   }
 

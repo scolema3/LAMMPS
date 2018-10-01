@@ -15,8 +15,8 @@
    Contributing author: Eric Simon (Cray)
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 #include "bond_class2.h"
 #include "atom.h"
 #include "neighbor.h"
@@ -209,7 +209,7 @@ void BondClass2::write_data(FILE *fp)
 
 /* ---------------------------------------------------------------------- */
 
-double BondClass2::single(int type, double rsq, int i, int j, double &fforce)
+double BondClass2::single(int type, double rsq, int /*i*/, int /*j*/, double &fforce)
 {
   double r = sqrt(rsq);
   double dr = r - r0[type];

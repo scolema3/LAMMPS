@@ -15,9 +15,9 @@
    Contributing author: Axel Kohlmeyer (Temple U)
 ------------------------------------------------------------------------- */
 
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstring>
+#include <cstdlib>
+#include <cmath>
 #include "reader_molfile.h"
 #include "atom.h"
 #include "comm.h"
@@ -113,12 +113,12 @@ void ReaderMolfile::open_file(const char *file)
   rv = mf->open(file,&natoms);
 
   if (rv != MFI::E_NONE) {
-    sprintf(str,"Cannot open file %s",file);
+    snprintf(str,1024,"Cannot open file %s",file);
     error->one(FLERR,str);
   }
 
   if (natoms < 1) {
-    sprintf(str,"No atoms in file %s",file);
+    snprintf(str,1024,"No atoms in file %s",file);
     error->one(FLERR,str);
   }
 

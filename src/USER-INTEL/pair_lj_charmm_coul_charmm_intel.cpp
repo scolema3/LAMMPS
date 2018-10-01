@@ -12,7 +12,7 @@
    Contributing author: W. Michael Brown (Intel)
 ------------------------------------------------------------------------- */
 
-#include <math.h>
+#include <cmath>
 #include "pair_lj_charmm_coul_charmm_intel.h"
 #include "atom.h"
 #include "comm.h"
@@ -136,6 +136,7 @@ void PairLJCharmmCoulCharmmIntel::eval(const int offload, const int vflag,
   ATOM_T * _noalias const x = buffers->get_x(offload);
   flt_t * _noalias const q = buffers->get_q(offload);
 
+  const int * _noalias const ilist = list->ilist;
   const int * _noalias const numneigh = list->numneigh;
   const int * _noalias const cnumneigh = buffers->cnumneigh(list);
   const int * _noalias const firstneigh = buffers->firstneigh(list);
@@ -189,6 +190,7 @@ void PairLJCharmmCoulCharmmIntel::eval(const int offload, const int vflag,
     in(numneigh:length(0) alloc_if(0) free_if(0)) \
     in(x:length(x_size) alloc_if(0) free_if(0)) \
     in(q:length(q_size) alloc_if(0) free_if(0)) \
+    in(ilist:length(0) alloc_if(0) free_if(0)) \
     in(overflow:length(0) alloc_if(0) free_if(0)) \
     in(ccachex,ccachey,ccachez,ccachew:length(0) alloc_if(0) free_if(0)) \
     in(ccachei,ccachej:length(0) alloc_if(0) free_if(0)) \
@@ -238,16 +240,17 @@ void PairLJCharmmCoulCharmmIntel::eval(const int offload, const int vflag,
       int * _noalias const tj = ccachei + toffs;
       int * _noalias const tjtype = ccachej + toffs;
 
-      for (int i = iifrom; i < iito; i += iip) {
-        //        const int i = ilist[ii];
+      for (int ii = iifrom; ii < iito; ii += iip) {
+        const int i = ilist[ii];
         const int itype = x[i].w;
 
         const int ptr_off = itype * ntypes;
         const flt_t * _noalias const cutsqi = cutsq + ptr_off;
         const LJ_T * _noalias const lji = lj + ptr_off;
 
-        const int   * _noalias const jlist = firstneigh + cnumneigh[i];
-        const int jnum = numneigh[i];
+        const int   * _noalias const jlist = firstneigh + cnumneigh[ii];
+        int jnum = numneigh[ii];
+        IP_PRE_neighbor_pad(jnum, offload);
 
         acc_t fxtmp,fytmp,fztmp,fwtmp;
         acc_t sevdwl, secoul, sv0, sv1, sv2, sv3, sv4, sv5;
@@ -297,19 +300,19 @@ void PairLJCharmmCoulCharmmIntel::eval(const int offload, const int vflag,
           const int sbindex = tj[jj] >> SBBITS & 3;
           const flt_t rsq = trsq[jj];
           const flt_t r2inv = (flt_t)1.0 / rsq;
-	  const flt_t r_inv = (flt_t)1.0 / sqrt(rsq);
-	  forcecoul = qqrd2e * qtmp * q[j] * r_inv;
-	  if (rsq > cut_coul_innersq) {
-	    const flt_t ccr = cut_coulsq - rsq;
-	    const flt_t switch1 = ccr * ccr * inv_denom_coul *
+          const flt_t r_inv = (flt_t)1.0 / sqrt(rsq);
+          forcecoul = qqrd2e * qtmp * q[j] * r_inv;
+          if (rsq > cut_coul_innersq) {
+            const flt_t ccr = cut_coulsq - rsq;
+            const flt_t switch1 = ccr * ccr * inv_denom_coul *
               (cut_coulsq + (flt_t)2.0 * rsq - (flt_t)3.0 * cut_coul_innersq);
-            forcecoul *= switch1; 
+            forcecoul *= switch1;
           }
 
           #ifdef INTEL_VMASK
           if (rsq < cut_ljsq) {
           #endif
-	    const int jtype = tjtype[jj];
+            const int jtype = tjtype[jj];
             flt_t r6inv = r2inv * r2inv * r2inv;
             forcelj = r6inv * (lji[jtype].x * r6inv - lji[jtype].y);
             if (EFLAG) evdwl = r6inv*(lji[jtype].z * r6inv - lji[jtype].w);
@@ -348,12 +351,12 @@ void PairLJCharmmCoulCharmmIntel::eval(const int offload, const int vflag,
           #else
           if (rsq > cut_ljsq) { forcelj = (flt_t)0.0; evdwl = (flt_t)0.0; }
           #endif
-	  if (sbindex) {
-  	    const flt_t factor_coul = special_coul[sbindex];
-	    forcecoul *= factor_coul;
-	    const flt_t factor_lj = special_lj[sbindex];
-	    forcelj *= factor_lj;
-	    if (EFLAG) evdwl *= factor_lj;
+          if (sbindex) {
+            const flt_t factor_coul = special_coul[sbindex];
+            forcecoul *= factor_coul;
+            const flt_t factor_lj = special_lj[sbindex];
+            forcelj *= factor_lj;
+            if (EFLAG) evdwl *= factor_lj;
           }
 
           const flt_t fpair = (forcecoul + forcelj) * r2inv;

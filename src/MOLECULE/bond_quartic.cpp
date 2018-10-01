@@ -15,8 +15,8 @@
    Contributing authors: Chris Lorenz and Mark Stevens (SNL)
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 #include "bond_quartic.h"
 #include "atom.h"
 #include "neighbor.h"
@@ -251,7 +251,7 @@ void BondQuartic::init_style()
    return an equilbrium bond length
 ------------------------------------------------------------------------- */
 
-double BondQuartic::equilibrium_distance(int i)
+double BondQuartic::equilibrium_distance(int /*i*/)
 {
   return 0.97;
 }

@@ -21,10 +21,10 @@
    The simplification is that all normals are taken along the z-direction
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "pair_kolmogorov_crespi_z.h"
 #include "atom.h"
 #include "comm.h"
@@ -43,6 +43,7 @@ using namespace LAMMPS_NS;
 PairKolmogorovCrespiZ::PairKolmogorovCrespiZ(LAMMPS *lmp) : Pair(lmp)
 {
   writedata = 1;
+  restartinfo = 0;
 
   // initialize element to parameter maps
   nelements = 0;
@@ -314,7 +315,7 @@ void PairKolmogorovCrespiZ::read_file(char *filename)
     fp = force->open_potential(filename);
     if (fp == NULL) {
       char str[128];
-      sprintf(str,"Cannot open KC potential file %s",filename);
+      snprintf(str,128,"Cannot open KC potential file %s",filename);
       error->one(FLERR,str);
     }
   }

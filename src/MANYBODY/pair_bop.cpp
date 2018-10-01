@@ -32,10 +32,10 @@
    Rules"_http://lammps.sandia.gov/open_source.html
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <mpi.h>
 #include "pair_bop.h"
 #include "atom.h"
@@ -49,7 +49,7 @@
 #include "neigh_request.h"
 #include "memory.h"
 #include "error.h"
-#include <ctype.h>
+#include <cctype>
 
 using namespace LAMMPS_NS;
 
@@ -61,6 +61,7 @@ using namespace LAMMPS_NS;
 PairBOP::PairBOP(LAMMPS *lmp) : Pair(lmp)
 {
   single_enable = 0;
+  restartinfo = 0;
   one_coeff = 1;
   manybody_flag = 1;
   ghostneigh = 1;
@@ -4975,7 +4976,7 @@ void PairBOP::read_table(char *filename)
     FILE *fp = force->open_potential(filename);
     if (fp == NULL) {
       char str[128];
-      sprintf(str,"Cannot open BOP potential file %s",filename);
+      snprintf(str,128,"Cannot open BOP potential file %s",filename);
       error->one(FLERR,str);
     }
     fgets(s,MAXLINE,fp);  // skip first comment line
@@ -5030,15 +5031,16 @@ void PairBOP::read_table(char *filename)
         }
       }
     }
-    if(nws==3) {
+    if (nws==3) {
       sscanf(s,"%d %d %d",&nr,&ntheta,&nBOt);
       npower=2;
       if(ntheta<=10) npower=ntheta;
-    }
-    else {
+    } else if (nws==2) {
       sscanf(s,"%d %d",&nr,&nBOt);
       ntheta=0;
       npower=3;
+    } else {
+      error->one(FLERR,"Unsupported BOP potential file format");
     }
     fclose(fp);
     npairs=bop_types*(bop_types+1)/2;
@@ -5077,7 +5079,7 @@ void PairBOP::read_table(char *filename)
     FILE *fp = force->open_potential(filename);
     if (fp == NULL) {
       char str[128];
-      sprintf(str,"Cannot open BOP potential file %s",filename);
+      snprintf(str,128,"Cannot open BOP potential file %s",filename);
       error->one(FLERR,str);
     }
     fgets(s,MAXLINE,fp);  // skip first comment line

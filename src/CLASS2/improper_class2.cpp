@@ -15,9 +15,9 @@
    Contributing author: Eric Simon (Cray)
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstring>
+#include <cstdlib>
 #include "improper_class2.h"
 #include "atom.h"
 #include "neighbor.h"
@@ -633,7 +633,7 @@ void ImproperClass2::read_restart(FILE *fp)
    angle-angle interactions within improper
 ------------------------------------------------------------------------- */
 
-void ImproperClass2::angleangle(int eflag, int vflag)
+void ImproperClass2::angleangle(int eflag, int /*vflag*/)
 {
   int i1,i2,i3,i4,i,j,k,n,type;
   double eimproper;

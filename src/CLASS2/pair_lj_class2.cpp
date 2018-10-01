@@ -11,9 +11,9 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
 #include "pair_lj_class2.h"
 #include "atom.h"
 #include "comm.h"
@@ -377,8 +377,8 @@ void PairLJClass2::write_data_all(FILE *fp)
 
 /* ---------------------------------------------------------------------- */
 
-double PairLJClass2::single(int i, int j, int itype, int jtype, double rsq,
-                            double factor_coul, double factor_lj,
+double PairLJClass2::single(int /*i*/, int /*j*/, int itype, int jtype, double rsq,
+                            double /*factor_coul*/, double factor_lj,
                             double &fforce)
 {
   double r2inv,rinv,r3inv,r6inv,forcelj,philj;

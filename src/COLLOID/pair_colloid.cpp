@@ -15,10 +15,10 @@
    Contributing author: Pieter in 't Veld (SNL)
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "pair_colloid.h"
 #include "atom.h"
 #include "comm.h"
@@ -469,8 +469,8 @@ void PairColloid::write_data_all(FILE *fp)
 
 /* ---------------------------------------------------------------------- */
 
-double PairColloid::single(int i, int j, int itype, int jtype, double rsq,
-                           double factor_coul, double factor_lj,
+double PairColloid::single(int /*i*/, int /*j*/, int itype, int jtype, double rsq,
+                           double /*factor_coul*/, double factor_lj,
                            double &fforce)
 {
   double K[9],h[4],g[4];

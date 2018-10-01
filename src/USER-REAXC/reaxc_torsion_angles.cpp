@@ -41,7 +41,7 @@ double Calculate_Omega( rvec dvec_ij, double r_ij,
                       three_body_interaction_data *p_jkl,
                       rvec dcos_omega_di, rvec dcos_omega_dj,
                       rvec dcos_omega_dk, rvec dcos_omega_dl,
-                      output_controls *out_control )
+                      output_controls * /*out_control*/ )
 {
   double unnorm_cos_omega, unnorm_sin_omega, omega;
   double sin_ijk, cos_ijk, sin_jkl, cos_jkl;
@@ -182,14 +182,14 @@ void Torsion_Angles( reax_system *system, control_params *control,
       BOA_jk = bo_jk->BO - control->thb_cut;
 
       if( system->my_atoms[j].orig_id > system->my_atoms[k].orig_id )
-	continue;
+        continue;
       if( system->my_atoms[j].orig_id == system->my_atoms[k].orig_id ) {
         if (system->my_atoms[k].x[2] <  system->my_atoms[j].x[2]) continue;
-      	if (system->my_atoms[k].x[2] == system->my_atoms[j].x[2] &&
-      	    system->my_atoms[k].x[1] <  system->my_atoms[j].x[1]) continue;
         if (system->my_atoms[k].x[2] == system->my_atoms[j].x[2] &&
-      	    system->my_atoms[k].x[1] == system->my_atoms[j].x[1] &&
-      	    system->my_atoms[k].x[0] <  system->my_atoms[j].x[0]) continue;
+            system->my_atoms[k].x[1] <  system->my_atoms[j].x[1]) continue;
+        if (system->my_atoms[k].x[2] == system->my_atoms[j].x[2] &&
+            system->my_atoms[k].x[1] == system->my_atoms[j].x[1] &&
+            system->my_atoms[k].x[0] <  system->my_atoms[j].x[0]) continue;
       }
 
       if( bo_jk->BO > control->thb_cut/*0*/ && Num_Entries(pk, thb_intrs) ) {

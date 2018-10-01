@@ -15,10 +15,10 @@
    Contributing authors: Leo Silbert (SNL), Gary Grest (SNL)
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "pair_gran_hooke_history.h"
 #include "atom.h"
 #include "atom_vec.h"
@@ -587,9 +587,9 @@ void PairGranHookeHistory::reset_dt()
 
 /* ---------------------------------------------------------------------- */
 
-double PairGranHookeHistory::single(int i, int j, int itype, int jtype,
+double PairGranHookeHistory::single(int i, int j, int /*itype*/, int /*jtype*/,
                                     double rsq,
-                                    double factor_coul, double factor_lj,
+                                    double /*factor_coul*/, double /*factor_lj*/,
                                     double &fforce)
 {
   double radi,radj,radsum;
@@ -746,7 +746,7 @@ double PairGranHookeHistory::single(int i, int j, int itype, int jtype,
 /* ---------------------------------------------------------------------- */
 
 int PairGranHookeHistory::pack_forward_comm(int n, int *list, double *buf,
-                                            int pbc_flag, int *pbc)
+                                            int /*pbc_flag*/, int * /*pbc*/)
 {
   int i,j,m;
 

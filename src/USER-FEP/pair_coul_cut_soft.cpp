@@ -15,10 +15,10 @@
    Soft-core version: Agilio Padua (Univ Blaise Pascal & CNRS)
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "pair_coul_cut_soft.h"
 #include "atom.h"
 #include "comm.h"
@@ -347,7 +347,7 @@ void PairCoulCutSoft::write_data_all(FILE *fp)
 /* ---------------------------------------------------------------------- */
 
 double PairCoulCutSoft::single(int i, int j, int itype, int jtype,
-                           double rsq, double factor_coul, double factor_lj,
+                           double rsq, double factor_coul, double /*factor_lj*/,
                            double &fforce)
 {
   double forcecoul,phicoul;

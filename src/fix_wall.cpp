@@ -11,9 +11,9 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
 #include "fix_wall.h"
 #include "atom.h"
 #include "input.h"
@@ -343,7 +343,7 @@ void FixWall::post_force(int vflag)
 
 /* ---------------------------------------------------------------------- */
 
-void FixWall::post_force_respa(int vflag, int ilevel, int iloop)
+void FixWall::post_force_respa(int vflag, int ilevel, int /*iloop*/)
 {
   if (ilevel == ilevel_respa) post_force(vflag);
 }

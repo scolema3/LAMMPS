@@ -2,7 +2,7 @@
 
 :link(lws,http://lammps.sandia.gov)
 :link(ld,Manual.html)
-:link(lc,Section_commands.html#comm)
+:link(lc,Commands_all.html)
 
 :line
 
@@ -90,13 +90,11 @@ likewise for this post-processing example:
  run 1000 :pre
 
 the mesh's linear interpolation functions can be used as the localization function
- by using the field option:
+by using the field option:
 
  fix AtC internal atc field
-
  fix_modify AtC mesh create 1 1 1 box p p p
-
- ...
+ ... :pre
 
 Note coupling and post-processing can be combined in the same simulations using separate fixes.
 
@@ -104,15 +102,20 @@ Note coupling and post-processing can be combined in the same simulations using 
 
 [Restart, fix_modify, output, run start/stop, minimize info:]
 
-No information about this fix is written to "binary restart files"_restart.html.  The "fix_modify"_fix_modify.html options relevant to this fix are listed below.  No global scalar or vector or per-atom quantities are stored by this fix for access by various "output commands"_Section_howto.html#howto_15.  No parameter of this fix can be used with the {start/stop} keywords of the "run"_run.html command.  This fix is not invoked during "energy minimization"_minimize.html.
+No information about this fix is written to "binary restart
+files"_restart.html.  The "fix_modify"_fix_modify.html options
+relevant to this fix are listed below.  No global scalar or vector or
+per-atom quantities are stored by this fix for access by various
+"output commands"_Howto_output.html.  No parameter of this fix can be
+used with the {start/stop} keywords of the "run"_run.html command.
+This fix is not invoked during "energy minimization"_minimize.html.
 
 [Restrictions:]
 
-Thermal and two_temperature (coupling) types use a Verlet time-integration algorithm. The hardy type does not contain its own time-integrator and must be used with a separate fix that does contain one, e.g. nve, nvt, etc.
+Thermal and two_temperature (coupling) types use a Verlet time-integration algorithm. The hardy type does not contain its own time-integrator and must be used with a separate fix that does contain one, e.g. nve, nvt, etc. In addition, currently:
 
-Currently,
-- the coupling is restricted to thermal physics
-- the FE computations are done in serial on each processor. :ul
+the coupling is restricted to thermal physics :ulb,l
+the FE computations are done in serial on each processor. :l,ule
 
 [Related commands:]
 

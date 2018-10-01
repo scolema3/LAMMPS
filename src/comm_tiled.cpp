@@ -11,7 +11,7 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <string.h>
+#include <cstring>
 #include "comm_tiled.h"
 #include "comm_brick.h"
 #include "atom.h"
@@ -38,15 +38,12 @@ using namespace LAMMPS_NS;
 
 #define DELTA_PROCS 16
 
-enum{SINGLE,MULTI};               // same as in Comm
-enum{LAYOUT_UNIFORM,LAYOUT_NONUNIFORM,LAYOUT_TILED};    // several files
-
 /* ---------------------------------------------------------------------- */
 
 CommTiled::CommTiled(LAMMPS *lmp) : Comm(lmp)
 {
   style = 1;
-  layout = LAYOUT_UNIFORM;
+  layout = Comm::LAYOUT_UNIFORM;
   pbc_flag = NULL;
   init_buffers();
 }
@@ -58,7 +55,7 @@ CommTiled::CommTiled(LAMMPS *lmp) : Comm(lmp)
 //           The call to Comm::copy_arrays() then converts the shallow copy
 //           into a deep copy of the class with the new layout.
 
-CommTiled::CommTiled(LAMMPS *lmp, Comm *oldcomm) : Comm(*oldcomm)
+CommTiled::CommTiled(LAMMPS * /*lmp*/, Comm *oldcomm) : Comm(*oldcomm)
 {
   style = 1;
   layout = oldcomm->layout;
@@ -115,7 +112,7 @@ void CommTiled::init()
 
   if (triclinic)
     error->all(FLERR,"Cannot yet use comm_style tiled with triclinic box");
-  if (mode == MULTI)
+  if (mode == Comm::MULTI)
     error->all(FLERR,"Cannot yet use comm_style tiled with multi-mode comm");
 }
 
@@ -141,7 +138,7 @@ void CommTiled::setup()
 
   // set function pointers
 
-  if (layout != LAYOUT_TILED) {
+  if (layout != Comm::LAYOUT_TILED) {
     box_drop = &CommTiled::box_drop_brick;
     box_other = &CommTiled::box_other_brick;
     box_touch = &CommTiled::box_touch_brick;
@@ -155,7 +152,7 @@ void CommTiled::setup()
 
   // if RCB decomp exists and just changed, gather needed global RCB info
 
-  if (layout == LAYOUT_TILED) coord2proc_setup();
+  if (layout == Comm::LAYOUT_TILED) coord2proc_setup();
 
   // set cutoff for comm forward and comm reverse
   // check that cutoff < any periodic box length
@@ -441,7 +438,7 @@ void CommTiled::setup()
    other per-atom attributes may also be sent via pack/unpack routines
 ------------------------------------------------------------------------- */
 
-void CommTiled::forward_comm(int dummy)
+void CommTiled::forward_comm(int /*dummy*/)
 {
   int i,irecv,n,nsend,nrecv;
   AtomVec *avec = atom->avec;
@@ -1167,7 +1164,7 @@ void CommTiled::reverse_comm_fix(Fix *fix, int size)
    NOTE: how to setup one big buf recv with correct offsets ??
 ------------------------------------------------------------------------- */
 
-void CommTiled::reverse_comm_fix_variable(Fix *fix)
+void CommTiled::reverse_comm_fix_variable(Fix * /*fix*/)
 {
   error->all(FLERR,"Reverse comm fix variable not yet supported by CommTiled");
 }
@@ -1431,7 +1428,7 @@ void CommTiled::forward_comm_array(int nsize, double **array)
    NOTE: this method is currently not used
 ------------------------------------------------------------------------- */
 
-int CommTiled::exchange_variable(int n, double *inbuf, double *&outbuf)
+int CommTiled::exchange_variable(int n, double * /*inbuf*/, double *& /*outbuf*/)
 {
   int nrecv = n;
   return nrecv;
@@ -1512,7 +1509,7 @@ void CommTiled::box_drop_brick(int idim, double *lo, double *hi, int &indexme)
    no need to split lo/hi box as recurse b/c OK if box extends outside RCB box
 ------------------------------------------------------------------------- */
 
-void CommTiled::box_drop_tiled(int idim, double *lo, double *hi, int &indexme)
+void CommTiled::box_drop_tiled(int /*idim*/, double *lo, double *hi, int &indexme)
 {
   box_drop_tiled_recurse(lo,hi,0,nprocs-1,indexme);
 }
@@ -1604,7 +1601,7 @@ void CommTiled::box_other_brick(int idim, int idir,
    return other box owned by proc as lo/hi corner pts
 ------------------------------------------------------------------------- */
 
-void CommTiled::box_other_tiled(int idim, int idir,
+void CommTiled::box_other_tiled(int /*idim*/, int /*idir*/,
                                 int proc, double *lo, double *hi)
 {
   double (*split)[2] = rcbinfo[proc].mysplit;
@@ -1807,7 +1804,7 @@ void CommTiled::coord2proc_setup()
 
 int CommTiled::coord2proc(double *x, int &igx, int &igy, int &igz)
 {
-  if (layout != LAYOUT_TILED) return Comm::coord2proc(x,igx,igy,igz);
+  if (layout != Comm::LAYOUT_TILED) return Comm::coord2proc(x,igx,igy,igz);
   return point_drop_tiled_recurse(x,0,nprocs-1);
 }
 

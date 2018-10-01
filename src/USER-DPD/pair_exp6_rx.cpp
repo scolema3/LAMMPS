@@ -11,10 +11,11 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cfloat>
 #include "pair_exp6_rx.h"
 #include "atom.h"
 #include "comm.h"
@@ -26,7 +27,6 @@
 #include "error.h"
 #include "modify.h"
 #include "fix.h"
-#include <float.h>
 
 using namespace LAMMPS_NS;
 using namespace MathConst;
@@ -730,7 +730,7 @@ void PairExp6rx::read_file(char *file)
     fp = force->open_potential(file);
     if (fp == NULL) {
       char str[128];
-      sprintf(str,"Cannot open exp6/rx potential file %s",file);
+      snprintf(str,128,"Cannot open exp6/rx potential file %s",file);
       error->one(FLERR,str);
     }
   }
@@ -841,7 +841,7 @@ void PairExp6rx::read_file2(char *file)
     fp = fopen(file,"r");
     if (fp == NULL) {
       char str[128];
-      sprintf(str,"Cannot open polynomial file %s",file);
+      snprintf(str,128,"Cannot open polynomial file %s",file);
       error->one(FLERR,str);
     }
   }

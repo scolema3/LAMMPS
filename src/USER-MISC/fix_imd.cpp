@@ -58,10 +58,10 @@ negotiate an appropriate license for such distribution."
 #include "group.h"
 #include "memory.h"
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #include <winsock2.h>
@@ -350,7 +350,7 @@ static void id_sort(tagint *idmap, tagint left, tagint right)
 
 /* part 1: Interactive MD (IMD) API */
 
-#include <limits.h>
+#include <climits>
 
 #if ( INT_MAX == 2147483647 )
 typedef int     int32;
@@ -811,7 +811,7 @@ void FixIMD::ioworker()
 /* ---------------------------------------------------------------------- */
 /* Main IMD protocol handler:
  * Send coodinates, energies, and add IMD forces to atoms. */
-void FixIMD::post_force(int vflag)
+void FixIMD::post_force(int /*vflag*/)
 {
   /* check for reconnect */
   if (imd_inactive) {
@@ -1153,7 +1153,7 @@ void FixIMD::post_force(int vflag)
 }
 
 /* ---------------------------------------------------------------------- */
-void FixIMD::post_force_respa(int vflag, int ilevel, int iloop)
+void FixIMD::post_force_respa(int vflag, int ilevel, int /*iloop*/)
 {
   /* only process IMD on the outmost RESPA level. */
   if (ilevel == nlevels_respa-1) post_force(vflag);

@@ -11,9 +11,9 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstring>
+#include <cstdlib>
 #include "compute_contact_atom.h"
 #include "atom.h"
 #include "update.h"
@@ -80,7 +80,7 @@ void ComputeContactAtom::init()
 
 /* ---------------------------------------------------------------------- */
 
-void ComputeContactAtom::init_list(int id, NeighList *ptr)
+void ComputeContactAtom::init_list(int /*id*/, NeighList *ptr)
 {
   list = ptr;
 }

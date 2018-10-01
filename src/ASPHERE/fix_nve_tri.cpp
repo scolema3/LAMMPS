@@ -11,9 +11,9 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdio.h>
-#include <string.h>
+#include <cmath>
+#include <cstdio>
+#include <cstring>
 #include "fix_nve_tri.h"
 #include "math_extra.h"
 #include "atom.h"
@@ -75,7 +75,7 @@ void FixNVETri::init()
 
 /* ---------------------------------------------------------------------- */
 
-void FixNVETri::initial_integrate(int vflag)
+void FixNVETri::initial_integrate(int /*vflag*/)
 {
   double dtfm;
   double omega[3];

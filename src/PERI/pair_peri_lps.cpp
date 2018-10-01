@@ -15,9 +15,9 @@
    Contributing author: Mike Parks (SNL)
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
 #include "pair_peri_lps.h"
 #include "atom.h"
 #include "domain.h"
@@ -364,7 +364,7 @@ void PairPeriLPS::allocate()
    global settings
 ------------------------------------------------------------------------- */
 
-void PairPeriLPS::settings(int narg, char **arg)
+void PairPeriLPS::settings(int narg, char **/*arg*/)
 {
   if (narg) error->all(FLERR,"Illegal pair_style command");
 }
@@ -631,7 +631,7 @@ void PairPeriLPS::compute_dilatation()
  ---------------------------------------------------------------------- */
 
 int PairPeriLPS::pack_forward_comm(int n, int *list, double *buf,
-                                   int pbc_flag, int *pbc)
+                                   int /*pbc_flag*/, int * /*pbc*/)
 {
   int i,j,m;
 

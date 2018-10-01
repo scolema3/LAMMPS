@@ -24,14 +24,20 @@ IntegrateStyle(verlet/lrt/intel,VerletLRTIntel)
 #include "pppm_intel.h"
 
 #ifdef LMP_INTEL_USELRT
-#ifdef LMP_INTEL_LRT11
-#define _LMP_INTEL_LRT_11
-#include <thread>
-#else
-#define _LMP_INTEL_LRT_PTHREAD
-#include <pthread.h>
-#endif
-
+  #if defined(LMP_INTEL_LRT11) || defined(__APPLE__)
+    #if __cplusplus > 199711L
+      #define _LMP_INTEL_LRT_11
+      #include <thread>
+    #else
+      #undef LMP_INTEL_USELRT
+      #ifdef LMP_INTEL_LRT11
+        #error C++11 support required for LMP_INTEL_LRT11 define
+      #endif
+    #endif
+  #else
+    #define _LMP_INTEL_LRT_PTHREAD
+    #include <pthread.h>
+  #endif
 #endif
 
 namespace LAMMPS_NS {
@@ -41,7 +47,7 @@ class VerletLRTIntel : public Verlet {
   VerletLRTIntel(class LAMMPS *, int, char **);
   virtual ~VerletLRTIntel();
   virtual void init();
-  virtual void setup(int flag = 1);
+  virtual void setup(int flag);
   virtual void run(int);
 
  protected:

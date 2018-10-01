@@ -35,7 +35,7 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Questions? Contact  H. Carter Edwards (hcedwar@sandia.gov)
+// Questions? Contact Christian R. Trott (crtrott@sandia.gov)
 //
 // ************************************************************************
 //@HEADER
@@ -48,12 +48,14 @@
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
+#include <stack>
 
 //----------------------------------------------------------------------------
 
 namespace {
 bool g_is_initialized = false;
 bool g_show_warnings = true;
+std::stack<std::function<void()> > finalize_hooks;
 }
 
 namespace Kokkos { namespace Impl { namespace {
@@ -85,21 +87,39 @@ setenv("MEMKIND_HBW_NODES", "1", 0);
   // Protect declarations, to prevent "unused variable" warnings.
 #if defined( KOKKOS_ENABLE_OPENMP ) || defined( KOKKOS_ENABLE_THREADS ) || defined( KOKKOS_ENABLE_OPENMPTARGET )
   const int num_threads = args.num_threads;
+#endif
+#if defined( KOKKOS_ENABLE_THREADS ) || defined( KOKKOS_ENABLE_OPENMPTARGET )
   const int use_numa = args.num_numa;
-#endif // defined( KOKKOS_ENABLE_OPENMP ) || defined( KOKKOS_ENABLE_THREADS )
+#endif
 #if defined( KOKKOS_ENABLE_CUDA ) || defined( KOKKOS_ENABLE_ROCM )
-  const int use_gpu = args.device_id;
+  int use_gpu = args.device_id;
+  const int ndevices = args.ndevices;
+  const int skip_device = args.skip_device;
+  // if the exact device is not set, but ndevices was given, assign round-robin using on-node MPI rank
+  if (use_gpu < 0 && ndevices >= 0) {
+    auto local_rank_str = std::getenv("OMPI_COMM_WORLD_LOCAL_RANK"); //OpenMPI
+    if (!local_rank_str) local_rank_str = std::getenv("MV2_COMM_WORLD_LOCAL_RANK"); //MVAPICH2
+    if (local_rank_str) {
+      auto local_rank = std::atoi(local_rank_str);
+      use_gpu = local_rank % ndevices;
+    } else {
+      // user only gave us ndevices, but the MPI environment variable wasn't set.
+      // start with GPU 0 at this point
+      use_gpu = 0;
+    }
+    // shift assignments over by one so no one is assigned to "skip_device"
+    if (use_gpu >= skip_device) ++use_gpu;
+  }
 #endif // defined( KOKKOS_ENABLE_CUDA )
 
 #if defined( KOKKOS_ENABLE_OPENMP )
   if( std::is_same< Kokkos::OpenMP , Kokkos::DefaultExecutionSpace >::value ||
       std::is_same< Kokkos::OpenMP , Kokkos::HostSpace::execution_space >::value ) {
-    if(use_numa>0) {
-      Kokkos::OpenMP::initialize(num_threads,use_numa);
-    }
-    else {
-      Kokkos::OpenMP::initialize(num_threads);
-    }
+#ifdef KOKKOS_ENABLE_DEPRECATED_CODE
+    Kokkos::OpenMP::initialize(num_threads);
+#else
+    Kokkos::OpenMP::impl_initialize(num_threads);
+#endif
   }
   else {
     //std::cout << "Kokkos::initialize() fyi: OpenMP enabled but not initialized" << std::endl ;
@@ -109,6 +129,7 @@ setenv("MEMKIND_HBW_NODES", "1", 0);
 #if defined( KOKKOS_ENABLE_THREADS )
   if( std::is_same< Kokkos::Threads , Kokkos::DefaultExecutionSpace >::value ||
       std::is_same< Kokkos::Threads , Kokkos::HostSpace::execution_space >::value ) {
+#ifdef KOKKOS_ENABLE_DEPRECATED_CODE
     if(num_threads>0) {
       if(use_numa>0) {
         Kokkos::Threads::initialize(num_threads,use_numa);
@@ -119,6 +140,18 @@ setenv("MEMKIND_HBW_NODES", "1", 0);
     } else {
       Kokkos::Threads::initialize();
     }
+#else
+    if(num_threads>0) {
+      if(use_numa>0) {
+        Kokkos::Threads::impl_initialize(num_threads,use_numa);
+      }
+      else {
+        Kokkos::Threads::impl_initialize(num_threads);
+      }
+    } else {
+      Kokkos::Threads::impl_initialize();
+    }
+#endif
     //std::cout << "Kokkos::initialize() fyi: Pthread enabled and initialized" << std::endl ;
   }
   else {
@@ -133,7 +166,11 @@ setenv("MEMKIND_HBW_NODES", "1", 0);
   (void) args;
 
   // Always initialize Serial if it is configure time enabled
+#ifdef KOKKOS_ENABLE_DEPRECATED_CODE
   Kokkos::Serial::initialize();
+#else
+  Kokkos::Serial::impl_initialize();
+#endif
 #endif
 
 #if defined( KOKKOS_ENABLE_OPENMPTARGET )
@@ -158,10 +195,18 @@ setenv("MEMKIND_HBW_NODES", "1", 0);
 #if defined( KOKKOS_ENABLE_CUDA )
   if( std::is_same< Kokkos::Cuda , Kokkos::DefaultExecutionSpace >::value || 0 < use_gpu ) {
     if (use_gpu > -1) {
+#ifdef KOKKOS_ENABLE_DEPRECATED_CODE
       Kokkos::Cuda::initialize( Kokkos::Cuda::SelectDevice( use_gpu ) );
+#else
+      Kokkos::Cuda::impl_initialize( Kokkos::Cuda::SelectDevice( use_gpu ) );
+#endif
     }
     else {
+#ifdef KOKKOS_ENABLE_DEPRECATED_CODE
       Kokkos::Cuda::initialize();
+#else
+      Kokkos::Cuda::impl_initialize();
+#endif
     }
     //std::cout << "Kokkos::initialize() fyi: Cuda enabled and initialized" << std::endl ;
   }
@@ -188,14 +233,39 @@ setenv("MEMKIND_HBW_NODES", "1", 0);
 void finalize_internal( const bool all_spaces = false )
 {
 
+  typename decltype(finalize_hooks)::size_type  numSuccessfulCalls = 0;
+  while(! finalize_hooks.empty()) {
+    auto f = finalize_hooks.top();
+    try {
+      f();
+    }
+    catch(...) {
+      std::cerr << "Kokkos::finalize: A finalize hook (set via "
+        "Kokkos::push_finalize_hook) threw an exception that it did not catch."
+        "  Per std::atexit rules, this results in std::terminate.  This is "
+        "finalize hook number " << numSuccessfulCalls << " (1-based indexing) "
+        "out of " << finalize_hooks.size() << " to call.  Remember that "
+        "Kokkos::finalize calls finalize hooks in reverse order from how they "
+        "were pushed." << std::endl;
+      std::terminate();
+    }
+    finalize_hooks.pop();
+    ++numSuccessfulCalls;
+  }
+
 #if defined(KOKKOS_ENABLE_PROFILING)
     Kokkos::Profiling::finalize();
 #endif
 
 #if defined( KOKKOS_ENABLE_CUDA )
   if( std::is_same< Kokkos::Cuda , Kokkos::DefaultExecutionSpace >::value || all_spaces ) {
+#ifdef KOKKOS_ENABLE_DEPRECATED_CODE
     if(Kokkos::Cuda::is_initialized())
       Kokkos::Cuda::finalize();
+#else
+    if(Kokkos::Cuda::impl_is_initialized())
+      Kokkos::Cuda::impl_finalize();
+#endif
   }
 #endif
 
@@ -217,8 +287,13 @@ void finalize_internal( const bool all_spaces = false )
   if( std::is_same< Kokkos::OpenMP , Kokkos::DefaultExecutionSpace >::value ||
       std::is_same< Kokkos::OpenMP , Kokkos::HostSpace::execution_space >::value ||
       all_spaces ) {
+#ifdef KOKKOS_ENABLE_DEPRECATED_CODE
     if(Kokkos::OpenMP::is_initialized())
       Kokkos::OpenMP::finalize();
+#else
+    if(Kokkos::OpenMP::impl_is_initialized())
+      Kokkos::OpenMP::impl_finalize();
+#endif
   }
 #endif
 
@@ -226,14 +301,24 @@ void finalize_internal( const bool all_spaces = false )
   if( std::is_same< Kokkos::Threads , Kokkos::DefaultExecutionSpace >::value ||
       std::is_same< Kokkos::Threads , Kokkos::HostSpace::execution_space >::value ||
       all_spaces ) {
+#ifdef KOKKOS_ENABLE_DEPRECATED_CODE
     if(Kokkos::Threads::is_initialized())
       Kokkos::Threads::finalize();
+#else
+    if(Kokkos::Threads::impl_is_initialized())
+      Kokkos::Threads::impl_finalize();
+#endif
   }
 #endif
 
 #if defined( KOKKOS_ENABLE_SERIAL )
+#ifdef KOKKOS_ENABLE_DEPRECATED_CODE
   if(Kokkos::Serial::is_initialized())
     Kokkos::Serial::finalize();
+#else
+  if(Kokkos::Serial::impl_is_initialized())
+    Kokkos::Serial::impl_finalize();
+#endif
 #endif
 
   g_is_initialized = false;
@@ -311,7 +396,9 @@ bool check_int_arg(char const* arg, char const* expected, int* value) {
   return true;
 }
 
-}}} // namespace Kokkos::Impl::{unnamed}
+}
+
+}} // namespace Kokkos::Impl::{unnamed}
 
 //----------------------------------------------------------------------------
 
@@ -322,6 +409,8 @@ void initialize(int& narg, char* arg[])
     int num_threads = -1;
     int numa = -1;
     int device = -1;
+    int ndevices=-1;
+    int skip_device = 9999;
     bool disable_warnings = false;
 
     int kokkos_threads_found = 0;
@@ -362,9 +451,6 @@ void initialize(int& narg, char* arg[])
         if (!((strncmp(arg[iarg],"--kokkos-ndevices=",18) == 0) || (strncmp(arg[iarg],"--ndevices=",11) == 0)))
           Impl::throw_runtime_exception("Error: expecting an '=INT[,INT]' after command line argument '--ndevices/--kokkos-ndevices'. Raised by Kokkos::initialize(int narg, char* argc[]).");
 
-        int ndevices=-1;
-        int skip_device = 9999;
-
         char* num1 = strchr(arg[iarg],'=')+1;
         char* num2 = strpbrk(num1,",");
         int num1_len = num2==NULL?strlen(num1):num2-num1;
@@ -385,29 +471,6 @@ void initialize(int& narg, char* arg[])
 
           if((strncmp(arg[iarg],"--kokkos-ndevices",17) == 0) || !kokkos_ndevices_found)
             skip_device = atoi(num2+1);
-        }
-
-        if((strncmp(arg[iarg],"--kokkos-ndevices",17) == 0) || !kokkos_ndevices_found) {
-          char *str;
-          //if ((str = getenv("SLURM_LOCALID"))) {
-          //  int local_rank = atoi(str);
-          //  device = local_rank % ndevices;
-          //  if (device >= skip_device) device++;
-          //}
-          if ((str = getenv("MV2_COMM_WORLD_LOCAL_RANK"))) {
-            int local_rank = atoi(str);
-            device = local_rank % ndevices;
-            if (device >= skip_device) device++;
-          }
-          if ((str = getenv("OMPI_COMM_WORLD_LOCAL_RANK"))) {
-            int local_rank = atoi(str);
-            device = local_rank % ndevices;
-            if (device >= skip_device) device++;
-          }
-          if(device==-1) {
-            device = 0;
-            if (device >= skip_device) device++;
-          }
         }
 
         //Remove the --kokkos-ndevices argument from the list but leave --ndevices
@@ -469,12 +532,23 @@ void initialize(int& narg, char* arg[])
       iarg++;
     }
 
-    InitArguments arguments{num_threads, numa, device, disable_warnings};
+    InitArguments arguments;
+    arguments.num_threads = num_threads;
+    arguments.num_numa = numa;
+    arguments.device_id = device;
+    arguments.ndevices = ndevices;
+    arguments.skip_device = skip_device;
+    arguments.disable_warnings = disable_warnings;
     Impl::initialize_internal(arguments);
 }
 
 void initialize(const InitArguments& arguments) {
   Impl::initialize_internal(arguments);
+}
+
+void push_finalize_hook(std::function<void()> f)
+{
+  finalize_hooks.push(f);
 }
 
 void finalize()
@@ -639,7 +713,12 @@ void print_configuration( std::ostream & out , const bool detail )
 #else
   msg << "no" << std::endl;
 #endif
-
+  msg << "  KOKKOS_ENABLE_SERIAL_ATOMICS: ";
+#ifdef KOKKOS_ENABLE_SERIAL_ATOMICS
+  msg << "yes" << std::endl;
+#else
+  msg << "no" << std::endl;
+#endif
 
   msg << "Vectorization:" << std::endl;
   msg << "  KOKKOS_ENABLE_PRAGMA_IVDEP: ";

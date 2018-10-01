@@ -16,7 +16,7 @@
 ------------------------------------------------------------------------- */
 
 #include <mpi.h>
-#include <string.h>
+#include <cstring>
 #include "compute_temp_deform.h"
 #include "domain.h"
 #include "atom.h"
@@ -31,8 +31,6 @@
 #include "error.h"
 
 using namespace LAMMPS_NS;
-
-enum{NO_REMAP,X_REMAP,V_REMAP};                   // same as fix_deform.cpp
 
 /* ---------------------------------------------------------------------- */
 
@@ -71,7 +69,7 @@ void ComputeTempDeform::init()
 
   for (i = 0; i < modify->nfix; i++)
     if (strcmp(modify->fix[i]->style,"deform") == 0) {
-      if (((FixDeform *) modify->fix[i])->remapflag == X_REMAP &&
+      if (((FixDeform *) modify->fix[i])->remapflag == Domain::X_REMAP &&
           comm->me == 0)
         error->warning(FLERR,"Using compute temp/deform with inconsistent "
                        "fix deform remap option");
@@ -279,7 +277,7 @@ void ComputeTempDeform::remove_bias_all()
    assume remove_bias() was previously called
 ------------------------------------------------------------------------- */
 
-void ComputeTempDeform::restore_bias(int i, double *v)
+void ComputeTempDeform::restore_bias(int /*i*/, double *v)
 {
   v[0] += vbias[0];
   v[1] += vbias[1];
@@ -291,7 +289,7 @@ void ComputeTempDeform::restore_bias(int i, double *v)
    assume remove_bias_thr() was previously called with the same buffer b
 ------------------------------------------------------------------------- */
 
-void ComputeTempDeform::restore_bias_thr(int i, double *v, double *b)
+void ComputeTempDeform::restore_bias_thr(int /*i*/, double *v, double *b)
 {
   v[0] += b[0];
   v[1] += b[1];

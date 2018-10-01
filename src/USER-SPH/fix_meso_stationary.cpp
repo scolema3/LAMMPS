@@ -11,12 +11,11 @@
  See the README file in the top-level LAMMPS directory.
  ------------------------------------------------------------------------- */
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
+#include <cmath>
+#include <cstdlib>
 #include "fix_meso_stationary.h"
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
 #include "atom.h"
 #include "comm.h"
 #include "force.h"
@@ -68,7 +67,7 @@ void FixMesoStationary::init() {
  allow for both per-type and per-atom mass
  ------------------------------------------------------------------------- */
 
-void FixMesoStationary::initial_integrate(int vflag) {
+void FixMesoStationary::initial_integrate(int /*vflag*/) {
 
   double *rho = atom->rho;
   double *drho = atom->drho;

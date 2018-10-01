@@ -15,9 +15,9 @@
    Contributing author: Kurt Smith (U Pittsburgh)
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
 #include "pair_dpd.h"
 #include "atom.h"
 #include "atom_vec.h"
@@ -390,8 +390,8 @@ void PairDPD::write_data_all(FILE *fp)
 
 /* ---------------------------------------------------------------------- */
 
-double PairDPD::single(int i, int j, int itype, int jtype, double rsq,
-                       double factor_coul, double factor_dpd, double &fforce)
+double PairDPD::single(int /*i*/, int /*j*/, int itype, int jtype, double rsq,
+                       double /*factor_coul*/, double factor_dpd, double &fforce)
 {
   double r,rinv,wd,phi;
 

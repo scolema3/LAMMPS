@@ -11,9 +11,9 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstring>
+#include <cstdlib>
 #include "fix_adapt.h"
 #include "atom.h"
 #include "bond.h"
@@ -118,7 +118,7 @@ nadapt(0), id_fix_diam(NULL), id_fix_chg(NULL), adapt(NULL)
       adapt[nadapt].bparam = new char[n];
       adapt[nadapt].bond = NULL;
       strcpy(adapt[nadapt].bparam,arg[iarg+2]);
-      force->bounds(FLERR,arg[iarg+3],atom->ntypes,
+      force->bounds(FLERR,arg[iarg+3],atom->nbondtypes,
                     adapt[nadapt].ilo,adapt[nadapt].ihi);
       if (strstr(arg[iarg+4],"v_") == arg[iarg+4]) {
         n = strlen(&arg[iarg+4][2]) + 1;
@@ -389,7 +389,7 @@ void FixAdapt::init()
     } else if (ad->which == BOND){
       ad->bond = NULL;
       anybond = 1;
-      
+
       int n = strlen(ad->bstyle) + 1;
       char *bstyle = new char[n];
       strcpy(bstyle,ad->bstyle);
@@ -408,7 +408,7 @@ void FixAdapt::init()
         error->all(FLERR,"Fix adapt bond style does not exist");
 
       void *ptr = ad->bond->extract(ad->bparam,ad->bdim);
-      
+
       if (ptr == NULL)
         error->all(FLERR,"Fix adapt bond style param not supported");
 
@@ -421,7 +421,7 @@ void FixAdapt::init()
         error->all(FLERR,"Fix adapt does not support bond_style hybrid");
 
       delete [] bstyle;
-        
+
     } else if (ad->which == KSPACE) {
       if (force->kspace == NULL)
         error->all(FLERR,"Fix adapt kspace style does not exist");
@@ -433,8 +433,8 @@ void FixAdapt::init()
           error->all(FLERR,"Fix adapt requires atom attribute diameter");
       }
       if (ad->aparam == CHARGE) {
-	if (!atom->q_flag)
-	  error->all(FLERR,"Fix adapt requires atom attribute charge");
+        if (!atom->q_flag)
+          error->all(FLERR,"Fix adapt requires atom attribute charge");
       }
     }
   }
@@ -449,12 +449,12 @@ void FixAdapt::init()
           ad->array_orig[i][j] = ad->array[i][j];
     } else if (ad->which == PAIR && ad->pdim == 0){
       ad->scalar_orig = *ad->scalar;
-      
+
     } else if (ad->which == BOND && ad->bdim == 1){
       for (i = ad->ilo; i <= ad->ihi; ++i )
         ad->vector_orig[i] = ad->vector[i];
     }
-    
+
   }
 
   // fixes that store initial per-atom values
@@ -476,7 +476,7 @@ void FixAdapt::init()
 
 /* ---------------------------------------------------------------------- */
 
-void FixAdapt::setup_pre_force(int vflag)
+void FixAdapt::setup_pre_force(int /*vflag*/)
 {
   change_settings();
 }
@@ -491,7 +491,7 @@ void FixAdapt::setup_pre_force_respa(int vflag, int ilevel)
 
 /* ---------------------------------------------------------------------- */
 
-void FixAdapt::pre_force(int vflag)
+void FixAdapt::pre_force(int /*vflag*/)
 {
   if (nevery == 0) return;
   if (update->ntimestep % nevery) return;
@@ -547,7 +547,7 @@ void FixAdapt::change_settings()
       }
 
     // set bond type array values:
-      
+
     } else if (ad->which == BOND) {
       if (ad->bdim == 1){
         if (scaleflag)
@@ -557,7 +557,7 @@ void FixAdapt::change_settings()
           for (i = ad->ilo; i <= ad->ihi; ++i )
             ad->vector[i] = value;
       }
-      
+
     // set kspace scale factor
 
     } else if (ad->which == KSPACE) {
@@ -597,12 +597,12 @@ void FixAdapt::change_settings()
         }
       } else if (ad->aparam == CHARGE) {
         double *q = atom->q;
-	int *mask = atom->mask;
-	int nlocal = atom->nlocal;
+        int *mask = atom->mask;
+        int nlocal = atom->nlocal;
         int nall = nlocal + atom->nghost;
 
-	for (i = 0; i < nall; i++)
-	  if (mask[i] & groupbit) q[i] = value;
+        for (i = 0; i < nall; i++)
+          if (mask[i] & groupbit) q[i] = value;
       }
     }
   }
@@ -657,7 +657,7 @@ void FixAdapt::restore_settings()
         for (int i = ad->ilo; i <= ad->ihi; i++)
           ad->vector[i] = ad->vector_orig[i];
       }
-      
+
     } else if (ad->which == KSPACE) {
       *kspace_scale = 1.0;
 

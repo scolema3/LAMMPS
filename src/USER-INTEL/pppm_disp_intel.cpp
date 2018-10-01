@@ -16,8 +16,8 @@
 ------------------------------------------------------------------------- */
 
 #include <mpi.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 #include "pppm_disp_intel.h"
 #include "atom.h"
 #include "comm.h"
@@ -723,12 +723,12 @@ void PPPMDispIntel::particle_map(double delx, double dely, double delz,
                                  double sft, int** p2g, int nup, int nlow,
                                  int nxlo, int nylo, int nzlo,
                                  int nxhi, int nyhi, int nzhi,
-                                 IntelBuffers<flt_t,acc_t> *buffers)
+                                 IntelBuffers<flt_t,acc_t> * /*buffers*/)
 {
   int nlocal = atom->nlocal;
   int nthr = comm->nthreads;
 
-  if (!ISFINITE(boxlo[0]) || !ISFINITE(boxlo[1]) || !ISFINITE(boxlo[2]))
+  if (!std::isfinite(boxlo[0]) || !std::isfinite(boxlo[1]) || !std::isfinite(boxlo[2]))
     error->one(FLERR,"Non-numeric box dimensions - simulation unstable");
 
   int flag = 0;
@@ -790,7 +790,7 @@ void PPPMDispIntel::particle_map(double delx, double dely, double delz,
 ------------------------------------------------------------------------- */
 
 template<class flt_t, class acc_t, int use_table>
-void PPPMDispIntel::make_rho_c(IntelBuffers<flt_t,acc_t> *buffers)
+void PPPMDispIntel::make_rho_c(IntelBuffers<flt_t,acc_t> * /*buffers*/)
 {
   // clear 3d density array
 
@@ -940,7 +940,7 @@ void PPPMDispIntel::make_rho_c(IntelBuffers<flt_t,acc_t> *buffers)
 ------------------------------------------------------------------------- */
 
 template<class flt_t, class acc_t, int use_table>
-void PPPMDispIntel::make_rho_g(IntelBuffers<flt_t,acc_t> *buffers)
+void PPPMDispIntel::make_rho_g(IntelBuffers<flt_t,acc_t> * /*buffers*/)
 {
   // clear 3d density array
 
@@ -1091,7 +1091,7 @@ void PPPMDispIntel::make_rho_g(IntelBuffers<flt_t,acc_t> *buffers)
 ------------------------------------------------------------------------- */
 
 template<class flt_t, class acc_t, int use_table>
-void PPPMDispIntel::make_rho_a(IntelBuffers<flt_t,acc_t> *buffers)
+void PPPMDispIntel::make_rho_a(IntelBuffers<flt_t,acc_t> * /*buffers*/)
 {
   // clear 3d density array
 
@@ -1225,7 +1225,7 @@ void PPPMDispIntel::make_rho_a(IntelBuffers<flt_t,acc_t> *buffers)
 ------------------------------------------------------------------------- */
 
 template<class flt_t, class acc_t, int use_table>
-void PPPMDispIntel::make_rho_none(IntelBuffers<flt_t,acc_t> *buffers)
+void PPPMDispIntel::make_rho_none(IntelBuffers<flt_t,acc_t> * /*buffers*/)
 {
 
   FFT_SCALAR * _noalias global_density = &(density_brick_none[0][nzlo_out_6][nylo_out_6][nxlo_out_6]);
@@ -1373,7 +1373,7 @@ void PPPMDispIntel::make_rho_none(IntelBuffers<flt_t,acc_t> *buffers)
 ------------------------------------------------------------------------- */
 
 template<class flt_t, class acc_t, int use_table>
-void PPPMDispIntel::fieldforce_c_ik(IntelBuffers<flt_t,acc_t> *buffers)
+void PPPMDispIntel::fieldforce_c_ik(IntelBuffers<flt_t,acc_t> * /*buffers*/)
 {
 
   // loop over my charges, interpolate electric field from nearby grid points
@@ -1500,8 +1500,8 @@ void PPPMDispIntel::fieldforce_c_ik(IntelBuffers<flt_t,acc_t> *buffers)
 
       for (int l = 0; l < order; l++) {
         ekx += ekx_arr[l];
-	eky += eky_arr[l];
-	ekz += ekz_arr[l];
+        eky += eky_arr[l];
+        ekz += ekz_arr[l];
       }
 
       // convert E-field to force
@@ -1520,7 +1520,7 @@ void PPPMDispIntel::fieldforce_c_ik(IntelBuffers<flt_t,acc_t> *buffers)
 ------------------------------------------------------------------------- */
 
 template<class flt_t, class acc_t, int use_table>
-void PPPMDispIntel::fieldforce_c_ad(IntelBuffers<flt_t,acc_t> *buffers)
+void PPPMDispIntel::fieldforce_c_ad(IntelBuffers<flt_t,acc_t> * /*buffers*/)
 {
 
   // loop over my charges, interpolate electric field from nearby grid points
@@ -1725,7 +1725,7 @@ void PPPMDispIntel::fieldforce_c_ad(IntelBuffers<flt_t,acc_t> *buffers)
 ------------------------------------------------------------------------- */
 
 template<class flt_t, class acc_t, int use_table>
-void PPPMDispIntel::fieldforce_g_ik(IntelBuffers<flt_t,acc_t> *buffers)
+void PPPMDispIntel::fieldforce_g_ik(IntelBuffers<flt_t,acc_t> * /*buffers*/)
 {
 
   // loop over my charges, interpolate electric field from nearby grid points
@@ -1848,8 +1848,8 @@ void PPPMDispIntel::fieldforce_g_ik(IntelBuffers<flt_t,acc_t> *buffers)
 
       for (int l = 0; l < order; l++) {
         ekx += ekx_arr[l];
-	eky += eky_arr[l];
-	ekz += ekz_arr[l];
+        eky += eky_arr[l];
+        ekz += ekz_arr[l];
       }
 
       // convert E-field to force
@@ -1869,7 +1869,7 @@ void PPPMDispIntel::fieldforce_g_ik(IntelBuffers<flt_t,acc_t> *buffers)
 ------------------------------------------------------------------------- */
 
 template<class flt_t, class acc_t, int use_table>
-void PPPMDispIntel::fieldforce_g_ad(IntelBuffers<flt_t,acc_t> *buffers)
+void PPPMDispIntel::fieldforce_g_ad(IntelBuffers<flt_t,acc_t> * /*buffers*/)
 {
 
   // loop over my charges, interpolate electric field from nearby grid points
@@ -2069,7 +2069,7 @@ void PPPMDispIntel::fieldforce_g_ad(IntelBuffers<flt_t,acc_t> *buffers)
 ------------------------------------------------------------------------- */
 
 template<class flt_t, class acc_t, int use_table>
-void PPPMDispIntel::fieldforce_a_ik(IntelBuffers<flt_t,acc_t> *buffers)
+void PPPMDispIntel::fieldforce_a_ik(IntelBuffers<flt_t,acc_t> * /*buffers*/)
 {
 
   // loop over my charges, interpolate electric field from nearby grid points
@@ -2232,27 +2232,27 @@ void PPPMDispIntel::fieldforce_a_ik(IntelBuffers<flt_t,acc_t> *buffers)
       ekx6 = eky6 = ekz6 = ZEROF;
 
       for (int l = 0; l < order; l++) {
-	ekx0 += ekx0_arr[l];
-	eky0 += eky0_arr[l];
-	ekz0 += ekz0_arr[l];
-	ekx1 += ekx1_arr[l];
-	eky1 += eky1_arr[l];
-	ekz1 += ekz1_arr[l];
-	ekx2 += ekx2_arr[l];
-	eky2 += eky2_arr[l];
-	ekz2 += ekz2_arr[l];
-	ekx3 += ekx3_arr[l];
-	eky3 += eky3_arr[l];
-	ekz3 += ekz3_arr[l];
-	ekx4 += ekx4_arr[l];
-	eky4 += eky4_arr[l];
-	ekz4 += ekz4_arr[l];
-	ekx5 += ekx5_arr[l];
-	eky5 += eky5_arr[l];
-	ekz5 += ekz5_arr[l];
-	ekx6 += ekx6_arr[l];
-	eky6 += eky6_arr[l];
-	ekz6 += ekz6_arr[l];
+        ekx0 += ekx0_arr[l];
+        eky0 += eky0_arr[l];
+        ekz0 += ekz0_arr[l];
+        ekx1 += ekx1_arr[l];
+        eky1 += eky1_arr[l];
+        ekz1 += ekz1_arr[l];
+        ekx2 += ekx2_arr[l];
+        eky2 += eky2_arr[l];
+        ekz2 += ekz2_arr[l];
+        ekx3 += ekx3_arr[l];
+        eky3 += eky3_arr[l];
+        ekz3 += ekz3_arr[l];
+        ekx4 += ekx4_arr[l];
+        eky4 += eky4_arr[l];
+        ekz4 += ekz4_arr[l];
+        ekx5 += ekx5_arr[l];
+        eky5 += eky5_arr[l];
+        ekz5 += ekz5_arr[l];
+        ekx6 += ekx6_arr[l];
+        eky6 += eky6_arr[l];
+        ekz6 += ekz6_arr[l];
       }
 
       // convert D-field to force
@@ -2282,7 +2282,7 @@ void PPPMDispIntel::fieldforce_a_ik(IntelBuffers<flt_t,acc_t> *buffers)
 ------------------------------------------------------------------------- */
 
 template<class flt_t, class acc_t, int use_table>
-void PPPMDispIntel::fieldforce_a_ad(IntelBuffers<flt_t,acc_t> *buffers)
+void PPPMDispIntel::fieldforce_a_ad(IntelBuffers<flt_t,acc_t> * /*buffers*/)
 {
 
   // loop over my charges, interpolate electric field from nearby grid points
@@ -2594,7 +2594,7 @@ void PPPMDispIntel::fieldforce_a_ad(IntelBuffers<flt_t,acc_t> *buffers)
 ------------------------------------------------------------------------- */
 
 template<class flt_t, class acc_t, int use_table>
-void PPPMDispIntel::fieldforce_none_ik(IntelBuffers<flt_t,acc_t> *buffers)
+void PPPMDispIntel::fieldforce_none_ik(IntelBuffers<flt_t,acc_t> * /*buffers*/)
 {
 
   // loop over my charges, interpolate electric field from nearby grid points
@@ -2729,11 +2729,11 @@ void PPPMDispIntel::fieldforce_none_ik(IntelBuffers<flt_t,acc_t> *buffers)
       }
 
       for (int l = 0; l < order; l++) {
-	for (int k = 0; k < nsplit; k++) {
-	  ekx[k] += ekx_arr[k*INTEL_P3M_ALIGNED_MAXORDER + l];
-	  eky[k] += eky_arr[k*INTEL_P3M_ALIGNED_MAXORDER + l];
-	  ekz[k] += ekz_arr[k*INTEL_P3M_ALIGNED_MAXORDER + l];
-	}
+        for (int k = 0; k < nsplit; k++) {
+          ekx[k] += ekx_arr[k*INTEL_P3M_ALIGNED_MAXORDER + l];
+          eky[k] += eky_arr[k*INTEL_P3M_ALIGNED_MAXORDER + l];
+          ekz[k] += ekz_arr[k*INTEL_P3M_ALIGNED_MAXORDER + l];
+        }
       }
 
       // convert E-field to force
@@ -2755,7 +2755,7 @@ void PPPMDispIntel::fieldforce_none_ik(IntelBuffers<flt_t,acc_t> *buffers)
 ------------------------------------------------------------------------- */
 
 template<class flt_t, class acc_t, int use_table>
-void PPPMDispIntel::fieldforce_none_ad(IntelBuffers<flt_t,acc_t> *buffers)
+void PPPMDispIntel::fieldforce_none_ad(IntelBuffers<flt_t,acc_t> * /*buffers*/)
 {
   // loop over my charges, interpolate electric field from nearby grid points
   // (nx,ny,nz) = global coords of grid pt to "lower left" of charge

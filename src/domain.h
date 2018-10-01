@@ -14,7 +14,7 @@
 #ifndef LMP_DOMAIN_H
 #define LMP_DOMAIN_H
 
-#include <math.h>
+#include <cmath>
 #include "pointers.h"
 #include <map>
 #include <string>
@@ -93,6 +93,7 @@ class Domain : protected Pointers {
   class Region **regions;                  // list of defined Regions
 
   int copymode;
+  enum{NO_REMAP,X_REMAP,V_REMAP};
 
   typedef Region *(*RegionCreator)(LAMMPS *,int,char**);
   typedef std::map<std::string,RegionCreator> RegionCreatorMap;
@@ -114,9 +115,8 @@ class Domain : protected Pointers {
   void minimum_image(double *);
   void minimum_image_once(double *);
   int closest_image(int, int);
-  int closest_image(double *, int);
-  void closest_image(const double * const, const double * const,
-                     double * const);
+  int closest_image(const double * const, int);
+  void closest_image(const double * const, const double * const, double * const);
   void remap(double *, imageint &);
   void remap(double *);
   void remap_near(double *, double *);
@@ -124,7 +124,7 @@ class Domain : protected Pointers {
   void unmap(const double *, imageint, double *);
   void image_flip(int, int, int);
   int ownatom(int, double *, imageint *, int);
-  
+
   void set_lattice(int, char **);
   void add_region(int, char **);
   void delete_region(int, char **);
@@ -172,10 +172,9 @@ class Domain : protected Pointers {
 
 /* ERROR/WARNING messages:
 
-E: Box bounds are invalid
+E: Box bounds are invalid or missing
 
-The box boundaries specified in the read_data file are invalid.  The
-lo value must be less than the hi value for all 3 dimensions.
+UNDOCUMENTED
 
 E: Cannot skew triclinic box in z for 2d simulation
 
@@ -199,6 +198,10 @@ LAMMPS simulation may be inefficient as a result.
 E: Illegal simulation box
 
 The lower bound of the simulation box is greater than the upper bound.
+
+E: Non-numeric atom coords - simulation unstable
+
+UNDOCUMENTED
 
 E: Bond atom missing in image check
 
@@ -278,5 +281,10 @@ E: Both sides of boundary must be periodic
 
 Cannot specify a boundary as periodic only on the lo or hi side.  Must
 be periodic on both sides.
+
+U: Box bounds are invalid
+
+The box boundaries specified in the read_data file are invalid.  The
+lo value must be less than the hi value for all 3 dimensions.
 
 */

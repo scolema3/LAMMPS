@@ -11,8 +11,8 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 #include "bond_fene_expand.h"
 #include "atom.h"
 #include "neighbor.h"
@@ -253,7 +253,7 @@ void BondFENEExpand::write_data(FILE *fp)
 
 /* ---------------------------------------------------------------------- */
 
-double BondFENEExpand::single(int type, double rsq, int i, int j,
+double BondFENEExpand::single(int type, double rsq, int /*i*/, int /*j*/,
                         double &fforce)
 {
   double r = sqrt(rsq);

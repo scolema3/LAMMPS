@@ -5,7 +5,7 @@ using namespace LAMMPS_NS;
 
 void
 MEAM::meam_dens_final(int nlocal, int eflag_either, int eflag_global, int eflag_atom, double* eng_vdwl,
-                      double* eatom, int ntype, int* type, int* fmap, int& errorflag)
+                      double* eatom, int /*ntype*/, int* type, int* fmap, int& errorflag)
 {
   int i, elti;
   int m;
@@ -33,9 +33,9 @@ MEAM::meam_dens_final(int nlocal, int eflag_either, int eflag_global, int eflag_
 
       if (rho0[i] > 0.0) {
         if (this->ialloy == 1) {
-          t_ave[i][0] = t_ave[i][0] / tsq_ave[i][0];
-          t_ave[i][1] = t_ave[i][1] / tsq_ave[i][1];
-          t_ave[i][2] = t_ave[i][2] / tsq_ave[i][2];
+          t_ave[i][0] = fdiv_zero(t_ave[i][0], tsq_ave[i][0]);
+          t_ave[i][1] = fdiv_zero(t_ave[i][1], tsq_ave[i][1]);
+          t_ave[i][2] = fdiv_zero(t_ave[i][2], tsq_ave[i][2]);
         } else if (this->ialloy == 2) {
           t_ave[i][0] = this->t1_meam[elti];
           t_ave[i][1] = this->t2_meam[elti];

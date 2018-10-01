@@ -12,8 +12,8 @@
 ------------------------------------------------------------------------- */
 
 #include <mpi.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 #include "fix_aveforce.h"
 #include "atom.h"
 #include "update.h"
@@ -194,7 +194,7 @@ void FixAveForce::min_setup(int vflag)
 
 /* ---------------------------------------------------------------------- */
 
-void FixAveForce::post_force(int vflag)
+void FixAveForce::post_force(int /*vflag*/)
 {
   // update region if necessary
 
@@ -259,7 +259,7 @@ void FixAveForce::post_force(int vflag)
 
 /* ---------------------------------------------------------------------- */
 
-void FixAveForce::post_force_respa(int vflag, int ilevel, int iloop)
+void FixAveForce::post_force_respa(int vflag, int ilevel, int /*iloop*/)
 {
   // ave + extra force on selected RESPA level
   // just ave on all other levels

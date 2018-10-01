@@ -11,10 +11,11 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
+#include <cfloat> // DBL_EPSILON
 #include "fix_rx.h"
 #include "atom.h"
 #include "error.h"
@@ -31,10 +32,8 @@
 #include "math_special.h"
 #include "pair_dpd_fdt_energy.h"
 
-#include <float.h> // DBL_EPSILON
 #include <vector> // std::vector<>
 #include <algorithm> // std::max
-#include <cmath> // std::fmod
 
 using namespace LAMMPS_NS;
 using namespace FixConst;
@@ -261,6 +260,7 @@ void FixRX::post_constructor()
       error->all(FLERR,"fix rx cannot be combined with fix property/atom");
 
   char **tmpspecies = new char*[maxspecies];
+  int tmpmaxstrlen = 0;
   for(int jj=0; jj < maxspecies; jj++)
     tmpspecies[jj] = NULL;
 
@@ -272,7 +272,7 @@ void FixRX::post_constructor()
     fp = force->open_potential(kineticsFile);
     if (fp == NULL) {
       char str[128];
-      sprintf(str,"Cannot open rx file %s",kineticsFile);
+      snprintf(str,128,"Cannot open rx file %s",kineticsFile);
       error->one(FLERR,str);
     }
   }
@@ -321,6 +321,7 @@ void FixRX::post_constructor()
           error->all(FLERR,"Exceeded the maximum number of species permitted in fix rx.");
         tmpspecies[nUniqueSpecies] = new char[strlen(word)+1];
         strcpy(tmpspecies[nUniqueSpecies],word);
+        tmpmaxstrlen = MAX(tmpmaxstrlen,strlen(word));
         nUniqueSpecies++;
       }
       word = strtok(NULL, " \t\n\r\f");
@@ -355,19 +356,21 @@ void FixRX::post_constructor()
   newarg2[0] = id_fix_species_old;
   newarg2[1] = group->names[igroup];
   newarg2[2] = (char *) "property/atom";
+  char *str1 = new char[tmpmaxstrlen+3];
+  char *str2 = new char[tmpmaxstrlen+6];
   for(int ii=0; ii<nspecies; ii++){
-    char str1[2+strlen(tmpspecies[ii])+1];
-    char str2[2+strlen(tmpspecies[ii])+4];
     strcpy(str1,"d_");
     strcpy(str2,"d_");
-    strncat(str1,tmpspecies[ii],strlen(tmpspecies[ii]));
-    strncat(str2,tmpspecies[ii],strlen(tmpspecies[ii]));
-    strncat(str2,"Old",3);
+    strcat(str1,tmpspecies[ii]);
+    strcat(str2,tmpspecies[ii]);
+    strcat(str2,"Old");
     newarg[ii+3] = new char[strlen(str1)+1];
     newarg2[ii+3] = new char[strlen(str2)+1];
     strcpy(newarg[ii+3],str1);
     strcpy(newarg2[ii+3],str2);
   }
+  delete[] str1;
+  delete[] str2;
   newarg[nspecies+3] = (char *) "ghost";
   newarg[nspecies+4] = (char *) "yes";
   newarg2[nspecies+3] = (char *) "ghost";
@@ -665,7 +668,7 @@ void FixRX::init_list(int, class NeighList* ptr)
 
 /* ---------------------------------------------------------------------- */
 
-void FixRX::setup_pre_force(int vflag)
+void FixRX::setup_pre_force(int /*vflag*/)
 {
   int nlocal = atom->nlocal;
   int nghost = atom->nghost;
@@ -724,9 +727,9 @@ void FixRX::setup_pre_force(int vflag)
 
 /* ---------------------------------------------------------------------- */
 
-void FixRX::pre_force(int vflag)
+void FixRX::pre_force(int /*vflag*/)
 {
-  TimerType timer_start = getTimeStamp();
+  //TimerType timer_start = getTimeStamp();
 
   int nlocal = atom->nlocal;
   int nghost = atom->nghost;
@@ -805,7 +808,7 @@ void FixRX::pre_force(int vflag)
   comm->forward_comm_fix(this);
   if(localTempFlag) delete [] dpdThetaLocal;
 
-  TimerType timer_stop = getTimeStamp();
+  //TimerType timer_stop = getTimeStamp();
 
   double time_ODE = getElapsedTime(timer_localTemperature, timer_ODE);
 
@@ -856,7 +859,7 @@ void FixRX::read_file(char *file)
     fp = force->open_potential(file);
     if (fp == NULL) {
       char str[128];
-      sprintf(str,"Cannot open rx file %s",file);
+      snprintf(str,128,"Cannot open rx file %s",file);
       error->one(FLERR,str);
     }
   }
@@ -1188,7 +1191,7 @@ void FixRX::rkf45_step (const int neq, const double h, double y[], double y_out[
    return;
 }
 
-int FixRX::rkf45_h0 (const int neq, const double t, const double t_stop,
+int FixRX::rkf45_h0 (const int neq, const double t, const double /*t_stop*/,
                      const double hmin, const double hmax,
                      double& h0, double y[], double rwk[], void* v_params)
 {
@@ -1665,7 +1668,7 @@ int FixRX::rhs(double t, const double *y, double *dydt, void *params)
 
 /* ---------------------------------------------------------------------- */
 
-int FixRX::rhs_dense(double t, const double *y, double *dydt, void *params)
+int FixRX::rhs_dense(double /*t*/, const double *y, double *dydt, void *params)
 {
   UserRHSData *userData = (UserRHSData *) params;
 
@@ -1699,7 +1702,7 @@ int FixRX::rhs_dense(double t, const double *y, double *dydt, void *params)
 
 /* ---------------------------------------------------------------------- */
 
-int FixRX::rhs_sparse(double t, const double *y, double *dydt, void *v_params) const
+int FixRX::rhs_sparse(double /*t*/, const double *y, double *dydt, void *v_params) const
 {
    UserRHSData *userData = (UserRHSData *) v_params;
 
@@ -1882,7 +1885,7 @@ void FixRX::computeLocalTemperature()
 
 /* ---------------------------------------------------------------------- */
 
-int FixRX::pack_forward_comm(int n, int *list, double *buf, int pbc_flag, int *pbc)
+int FixRX::pack_forward_comm(int n, int *list, double *buf, int /*pbc_flag*/, int * /*pbc*/)
 {
   int ii,jj,m;
   double tmp;

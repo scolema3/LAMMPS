@@ -39,8 +39,8 @@
    important: we cannot know the exact number of atoms that will fall into a
    process's box throughout the whole simulation. therefore
    we need to make upper bound estimates for various data structures */
-int PreAllocate_Space( reax_system *system, control_params *control,
-                       storage *workspace, MPI_Comm comm )
+int PreAllocate_Space( reax_system *system, control_params * /*control*/,
+                       storage * workspace, MPI_Comm comm )
 {
   int mincap = system->mincap;
   double safezone = system->safezone;
@@ -60,6 +60,8 @@ int PreAllocate_Space( reax_system *system, control_params *control,
   workspace->forceReduction = NULL;
   workspace->valence_angle_atom_myoffset = NULL;
   workspace->my_ext_pressReduction = NULL;
+#else
+  LMP_UNUSED_PARAM(workspace);
 #endif
 
   return SUCCESS;
@@ -68,8 +70,8 @@ int PreAllocate_Space( reax_system *system, control_params *control,
 
 /*************       system        *************/
 
-int Allocate_System( reax_system *system, int local_cap, int total_cap,
-                     char *msg )
+int Allocate_System( reax_system *system, int /*local_cap*/, int total_cap,
+                     char * /*msg*/ )
 {
   system->my_atoms = (reax_atom*)
     realloc( system->my_atoms, total_cap*sizeof(reax_atom) );
@@ -116,7 +118,7 @@ void DeAllocate_System( reax_system *system )
 
 
 /*************       workspace        *************/
-void DeAllocate_Workspace( control_params *control, storage *workspace )
+void DeAllocate_Workspace( control_params * /*control*/, storage *workspace )
 {
   int i;
 
@@ -204,9 +206,9 @@ void DeAllocate_Workspace( control_params *control, storage *workspace )
 }
 
 
-int Allocate_Workspace( reax_system *system, control_params *control,
+int Allocate_Workspace( reax_system * /*system*/, control_params * control,
                         storage *workspace, int local_cap, int total_cap,
-                        MPI_Comm comm, char *msg )
+                        MPI_Comm comm, char * /*msg*/ )
 {
   int i, total_real, total_rvec, local_rvec;
 
@@ -300,13 +302,15 @@ int Allocate_Workspace( reax_system *system, control_params *control,
   // storage for reductions with multiple threads
 #ifdef LMP_USER_OMP
   workspace->CdDeltaReduction = (double *) scalloc(sizeof(double), total_cap*control->nthreads,
-						 "cddelta_reduce", comm);
+                                                 "cddelta_reduce", comm);
 
   workspace->forceReduction = (rvec *) scalloc(sizeof(rvec), total_cap*control->nthreads,
-					       "forceReduction", comm);
+                                               "forceReduction", comm);
 
   workspace->valence_angle_atom_myoffset = (int *) scalloc(sizeof(int), total_cap, "valence_angle_atom_myoffset", comm);
   workspace->my_ext_pressReduction = (rvec *) calloc(sizeof(rvec), control->nthreads);
+#else
+  LMP_UNUSED_PARAM(control);
 #endif
 
   return SUCCESS;
@@ -327,14 +331,14 @@ static void Reallocate_Neighbor_List( reax_list *far_nbrs, int n,
 static int Reallocate_HBonds_List( reax_system *system, reax_list *hbonds,
                                    MPI_Comm comm )
 {
-  int i, id, total_hbonds;
+  int i, total_hbonds;
 
   int mincap = system->mincap;
   double saferzone = system->saferzone;
 
   total_hbonds = 0;
   for( i = 0; i < system->n; ++i )
-    if( (id = system->my_atoms[i].Hindex) >= 0 ) {
+    if( (system->my_atoms[i].Hindex) >= 0 ) {
       total_hbonds += system->my_atoms[i].num_hbonds;
     }
   total_hbonds = (int)(MAX( total_hbonds*saferzone, mincap*MIN_HBONDS ));

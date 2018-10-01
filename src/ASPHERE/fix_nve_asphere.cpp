@@ -15,9 +15,9 @@
    Contributing author: Mike Brown (SNL)
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdio.h>
-#include <string.h>
+#include <cmath>
+#include <cstdio>
+#include <cstring>
 #include "fix_nve_asphere.h"
 #include "math_extra.h"
 #include "atom.h"
@@ -62,7 +62,7 @@ void FixNVEAsphere::init()
 
 /* ---------------------------------------------------------------------- */
 
-void FixNVEAsphere::initial_integrate(int vflag)
+void FixNVEAsphere::initial_integrate(int /*vflag*/)
 {
   double dtfm;
   double inertia[3],omega[3];

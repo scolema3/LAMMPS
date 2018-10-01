@@ -18,10 +18,10 @@
      Hybrid and sub-group capabilities: Ray Shan (Sandia)
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "fix_qeq_reax.h"
 #include "pair_reaxc.h"
 #include "atom.h"
@@ -381,7 +381,7 @@ void FixQEqReax::init()
 
 /* ---------------------------------------------------------------------- */
 
-void FixQEqReax::init_list(int id, NeighList *ptr)
+void FixQEqReax::init_list(int /*id*/, NeighList *ptr)
 {
   list = ptr;
 }
@@ -428,7 +428,7 @@ void FixQEqReax::init_taper()
   Tap[3] = 140.0 * (swa3*swb + 3.0*swa2*swb2 + swa*swb3) / d7;
   Tap[2] =-210.0 * (swa3*swb2 + swa2*swb3) / d7;
   Tap[1] = 140.0 * swa3 * swb3 / d7;
-  Tap[0] = (-35.0*swa3*swb2*swb2 + 21.0*swa2*swb3*swb2 +
+  Tap[0] = (-35.0*swa3*swb2*swb2 + 21.0*swa2*swb3*swb2 -
             7.0*swa*swb3*swb3 + swb3*swb3*swb) / d7;
 }
 
@@ -485,7 +485,7 @@ void FixQEqReax::init_storage()
 
 /* ---------------------------------------------------------------------- */
 
-void FixQEqReax::pre_force(int vflag)
+void FixQEqReax::pre_force(int /*vflag*/)
 {
   double t_start, t_end;
 
@@ -504,7 +504,7 @@ void FixQEqReax::pre_force(int vflag)
 
   init_matvec();
 
-  matvecs_s = CG(b_s, s);    	// CG on s - parallel
+  matvecs_s = CG(b_s, s);       // CG on s - parallel
   matvecs_t = CG(b_t, t);       // CG on t - parallel
   matvecs = matvecs_s + matvecs_t;
 
@@ -518,7 +518,7 @@ void FixQEqReax::pre_force(int vflag)
 
 /* ---------------------------------------------------------------------- */
 
-void FixQEqReax::pre_force_respa(int vflag, int ilevel, int iloop)
+void FixQEqReax::pre_force_respa(int vflag, int ilevel, int /*iloop*/)
 {
   if (ilevel == nlevels_respa-1) pre_force(vflag);
 }
@@ -631,9 +631,9 @@ void FixQEqReax::compute_H()
               if (dy > SMALL) flag = 1;
               else if (fabs(dy) < SMALL && dx > SMALL)
                 flag = 1;
-	    }
-	  }
-	}
+            }
+          }
+        }
 
         if (flag) {
           H.jlist[m_fill] = j;
@@ -833,7 +833,7 @@ void FixQEqReax::calculate_Q()
 /* ---------------------------------------------------------------------- */
 
 int FixQEqReax::pack_forward_comm(int n, int *list, double *buf,
-                                  int pbc_flag, int *pbc)
+                                  int /*pbc_flag*/, int * /*pbc*/)
 {
   int m;
 
@@ -952,7 +952,7 @@ void FixQEqReax::grow_arrays(int nmax)
    copy values within fictitious charge arrays
 ------------------------------------------------------------------------- */
 
-void FixQEqReax::copy_arrays(int i, int j, int delflag)
+void FixQEqReax::copy_arrays(int i, int j, int /*delflag*/)
 {
   for (int m = 0; m < nprev; m++) {
     s_hist[j][m] = s_hist[i][m];

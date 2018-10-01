@@ -16,10 +16,10 @@
      Based on fix qeq/reax by H. Metin Aktulga
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "fix_qeq.h"
 #include "atom.h"
 #include "comm.h"
@@ -46,10 +46,10 @@ using namespace FixConst;
 /* ---------------------------------------------------------------------- */
 
 FixQEq::FixQEq(LAMMPS *lmp, int narg, char **arg) :
-  Fix(lmp, narg, arg), list(NULL), chi(NULL), eta(NULL), 
-  gamma(NULL), zeta(NULL), zcore(NULL), chizj(NULL), shld(NULL), 
-  s(NULL), t(NULL), s_hist(NULL), t_hist(NULL), Hdia_inv(NULL), b_s(NULL), 
-  b_t(NULL), p(NULL), q(NULL), r(NULL), d(NULL), 
+  Fix(lmp, narg, arg), list(NULL), chi(NULL), eta(NULL),
+  gamma(NULL), zeta(NULL), zcore(NULL), chizj(NULL), shld(NULL),
+  s(NULL), t(NULL), s_hist(NULL), t_hist(NULL), Hdia_inv(NULL), b_s(NULL),
+  b_t(NULL), p(NULL), q(NULL), r(NULL), d(NULL),
   qf(NULL), q1(NULL), q2(NULL), qv(NULL)
 {
   if (narg < 8) error->all(FLERR,"Illegal fix qeq command");
@@ -274,7 +274,7 @@ void FixQEq::reallocate_matrix()
 
 /* ---------------------------------------------------------------------- */
 
-void FixQEq::init_list(int id, NeighList *ptr)
+void FixQEq::init_list(int /*id*/, NeighList *ptr)
 {
   list = ptr;
 }
@@ -329,7 +329,7 @@ void FixQEq::init_storage()
 
 /* ---------------------------------------------------------------------- */
 
-void FixQEq::pre_force_respa(int vflag, int ilevel, int iloop)
+void FixQEq::pre_force_respa(int vflag, int ilevel, int /*iloop*/)
 {
   if (ilevel == nlevels_respa-1) pre_force(vflag);
 }
@@ -362,6 +362,7 @@ int FixQEq::CG( double *b, double *x )
     i = ilist[ii];
     if (atom->mask[i] & groupbit)
       d[i] = r[i] * Hdia_inv[i];
+    else d[i] = 0.0;
   }
 
   b_norm = parallel_norm( b, inum );
@@ -470,7 +471,7 @@ void FixQEq::calculate_Q()
 /* ---------------------------------------------------------------------- */
 
 int FixQEq::pack_forward_comm(int n, int *list, double *buf,
-                          int pbc_flag, int *pbc)
+                          int /*pbc_flag*/, int * /*pbc*/)
 {
   int m;
 
@@ -551,7 +552,7 @@ void FixQEq::grow_arrays(int nmax)
    copy values within fictitious charge arrays
 ------------------------------------------------------------------------- */
 
-void FixQEq::copy_arrays(int i, int j, int delflag)
+void FixQEq::copy_arrays(int i, int j, int /*delflag*/)
 {
   for (int m = 0; m < nprev; m++) {
     s_hist[j][m] = s_hist[i][m];
@@ -594,6 +595,7 @@ double FixQEq::parallel_norm( double *v, int n )
   ilist = list->ilist;
 
   my_sum = 0.0;
+  norm_sqr = 0.0;
   for( ii = 0; ii < n; ++ii ) {
     i = ilist[ii];
     if (atom->mask[i] & groupbit)
@@ -698,7 +700,7 @@ void FixQEq::read_file(char *file)
 
   int ntypes = atom->ntypes;
   int *setflag = new int[ntypes+1];
-  for (i=0; i < params_per_line; ++i) setflag[i] = 0;
+  for (i=0; i <= ntypes; ++i) setflag[i] = 0;
 
   memory->create(chi,ntypes+1,"qeq:chi");
   memory->create(eta,ntypes+1,"qeq:eta");
@@ -713,7 +715,7 @@ void FixQEq::read_file(char *file)
     fp = force->open_potential(file);
     if (fp == NULL) {
       char str[128];
-      sprintf(str,"Cannot open fix qeq parameter file %s",file);
+      snprintf(str,128,"Cannot open fix qeq parameter file %s",file);
       error->one(FLERR,str);
     }
   }

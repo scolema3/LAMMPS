@@ -1,11 +1,11 @@
 #include "manifold_plane_wiggle.h"
 
-#include <math.h>
+#include <cmath>
 
 using namespace LAMMPS_NS;
 using namespace user_manifold;
 
-manifold_plane_wiggle::manifold_plane_wiggle( LAMMPS *lmp, int argc, char **argv ) :
+manifold_plane_wiggle::manifold_plane_wiggle( LAMMPS *lmp, int /*argc*/, char **/*argv*/ ) :
   manifold(lmp)
 {}
 

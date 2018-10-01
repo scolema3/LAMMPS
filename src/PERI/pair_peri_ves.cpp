@@ -15,9 +15,9 @@
    Contributing authors: Rezwanur Rahman, J.T. Foster (UTSA)
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
 #include "pair_peri_ves.h"
 #include "atom.h"
 #include "domain.h"
@@ -411,7 +411,7 @@ void PairPeriVES::allocate()
    global settings
 ------------------------------------------------------------------------- */
 
-void PairPeriVES::settings(int narg, char **arg)
+void PairPeriVES::settings(int narg, char **/*arg*/)
 {
   if (narg) error->all(FLERR,"Illegal pair_style command");
 }
@@ -697,7 +697,7 @@ void PairPeriVES::compute_dilatation()
 ---------------------------------------------------------------------- */
 
 int PairPeriVES::pack_forward_comm(int n, int *list, double *buf,
-                                   int pbc_flag, int *pbc)
+                                   int /*pbc_flag*/, int * /*pbc*/)
 {
   int i,j,m;
 

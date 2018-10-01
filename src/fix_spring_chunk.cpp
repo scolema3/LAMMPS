@@ -11,9 +11,9 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
 #include "fix_spring_chunk.h"
 #include "atom.h"
 #include "update.h"
@@ -144,7 +144,7 @@ void FixSpringChunk::min_setup(int vflag)
 
 /* ---------------------------------------------------------------------- */
 
-void FixSpringChunk::post_force(int vflag)
+void FixSpringChunk::post_force(int /*vflag*/)
 {
   int i,m;
   double dx,dy,dz,r;
@@ -231,7 +231,7 @@ void FixSpringChunk::post_force(int vflag)
 
 /* ---------------------------------------------------------------------- */
 
-void FixSpringChunk::post_force_respa(int vflag, int ilevel, int iloop)
+void FixSpringChunk::post_force_respa(int vflag, int ilevel, int /*iloop*/)
 {
   if (ilevel == ilevel_respa) post_force(vflag);
 }

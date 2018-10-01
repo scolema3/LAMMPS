@@ -16,9 +16,9 @@
 ------------------------------------------------------------------------- */
 
 #include <mpi.h>
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
 #include "pair_table_rx.h"
 #include "atom.h"
 #include "force.h"
@@ -439,7 +439,7 @@ void PairTableRX::coeff(int narg, char **arg)
 /* ---------------------------------------------------------------------- */
 
 double PairTableRX::single(int i, int j, int itype, int jtype, double rsq,
-                         double factor_coul, double factor_lj,
+                         double /*factor_coul*/, double factor_lj,
                          double &fforce)
 {
   int itable;

@@ -11,8 +11,8 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 #include "bond_nonlinear.h"
 #include "atom.h"
 #include "neighbor.h"
@@ -191,7 +191,7 @@ void BondNonlinear::write_data(FILE *fp)
 
 /* ---------------------------------------------------------------------- */
 
-double BondNonlinear::single(int type, double rsq, int i, int j,
+double BondNonlinear::single(int type, double rsq, int /*i*/, int /*j*/,
                              double &fforce)
 {
   double r = sqrt(rsq);

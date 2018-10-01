@@ -11,8 +11,8 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include "fix_store.h"
 #include "atom.h"
 #include "comm.h"
@@ -42,7 +42,7 @@ vstore(NULL), astore(NULL), rbuf(NULL)
 
   disable = 0;
   nvalues = vecflag = 0;
-  flavor = UNKNOWN; 
+  flavor = UNKNOWN;
 
   if (strcmp(arg[3],"global") == 0) flavor = GLOBAL;
   else if (strcmp(arg[3],"peratom") == 0) flavor = PERATOM;
@@ -154,8 +154,6 @@ void FixStore::reset_global(int nrow_caller, int ncol_caller)
   if (vecflag) memory->create(vstore,nrow,"fix/store:vstore");
   else memory->create(astore,nrow,ncol,"fix/store:astore");
   memory->create(rbuf,nrow*ncol+2,"fix/store:rbuf");
-
- // printf("AAA HOW GET HERE\n");
 }
 
 /* ----------------------------------------------------------------------
@@ -231,7 +229,7 @@ void FixStore::grow_arrays(int nmax)
    copy values within local atom-based array
 ------------------------------------------------------------------------- */
 
-void FixStore::copy_arrays(int i, int j, int delflag)
+void FixStore::copy_arrays(int i, int j, int /*delflag*/)
 {
   if (disable) return;
 
@@ -326,7 +324,7 @@ int FixStore::maxsize_restart()
    size of atom nlocal's restart data
 ------------------------------------------------------------------------- */
 
-int FixStore::size_restart(int nlocal)
+int FixStore::size_restart(int /*nlocal*/)
 {
   if (disable) return 1;
   return nvalues+1;

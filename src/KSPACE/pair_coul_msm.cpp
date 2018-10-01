@@ -15,10 +15,10 @@
    Contributing authors: Stan Moore (SNL), Paul Crozier (SNL)
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "pair_coul_msm.h"
 #include "atom.h"
 #include "comm.h"
@@ -169,9 +169,9 @@ void PairCoulMSM::compute(int eflag, int vflag)
 
 /* ---------------------------------------------------------------------- */
 
-double PairCoulMSM::single(int i, int j, int itype, int jtype,
+double PairCoulMSM::single(int i, int j, int /*itype*/, int /*jtype*/,
                             double rsq,
-                            double factor_coul, double factor_lj,
+                            double factor_coul, double /*factor_lj*/,
                             double &fforce)
 {
   double r2inv,r,egamma,fgamma,prefactor;

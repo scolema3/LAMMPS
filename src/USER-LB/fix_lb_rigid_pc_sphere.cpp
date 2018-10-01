@@ -16,10 +16,10 @@
    Based on fix_rigid (version from 2008).
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "fix_lb_rigid_pc_sphere.h"
 #include "atom.h"
 #include "atom_vec.h"
@@ -1454,7 +1454,7 @@ void FixLbRigidPCSphere::grow_arrays(int nmax)
    copy values within local atom-based arrays
 ------------------------------------------------------------------------- */
 
-void FixLbRigidPCSphere::copy_arrays(int i, int j, int delflag)
+void FixLbRigidPCSphere::copy_arrays(int i, int j, int /*delflag*/)
 {
   body[j] = body[i];
   up[j][0] = up[i][0];

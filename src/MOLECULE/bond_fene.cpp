@@ -11,8 +11,8 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 #include "bond_fene.h"
 #include "atom.h"
 #include "neighbor.h"
@@ -242,7 +242,7 @@ void BondFENE::write_data(FILE *fp)
 
 /* ---------------------------------------------------------------------- */
 
-double BondFENE::single(int type, double rsq, int i, int j,
+double BondFENE::single(int type, double rsq, int /*i*/, int /*j*/,
                         double &fforce)
 {
   double r0sq = r0[type] * r0[type];

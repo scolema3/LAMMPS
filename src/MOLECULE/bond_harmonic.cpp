@@ -11,9 +11,9 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
 #include "bond_harmonic.h"
 #include "atom.h"
 #include "neighbor.h"
@@ -190,7 +190,7 @@ void BondHarmonic::write_data(FILE *fp)
 
 /* ---------------------------------------------------------------------- */
 
-double BondHarmonic::single(int type, double rsq, int i, int j,
+double BondHarmonic::single(int type, double rsq, int /*i*/, int /*j*/,
                         double &fforce)
 {
   double r = sqrt(rsq);

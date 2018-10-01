@@ -11,9 +11,9 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstring>
+#include <cstdlib>
 #include "fix_nve_asphere_noforce.h"
 #include "math_extra.h"
 #include "atom.h"
@@ -64,7 +64,7 @@ void FixNVEAsphereNoforce::init()
 
 /* ---------------------------------------------------------------------- */
 
-void FixNVEAsphereNoforce::initial_integrate(int vflag)
+void FixNVEAsphereNoforce::initial_integrate(int /*vflag*/)
 {
   AtomVecEllipsoid::Bonus *bonus;
   if (avec) bonus = avec->bonus;

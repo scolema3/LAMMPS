@@ -15,10 +15,10 @@
    Contributing author: Yongfeng Zhang (INL), yongfeng.zhang@inl.gov
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "pair_coul_wolf.h"
 #include "atom.h"
 #include "comm.h"
@@ -219,7 +219,7 @@ void PairCoulWolf::init_style()
    init for one type pair i,j and corresponding j,i
 ------------------------------------------------------------------------- */
 
-double PairCoulWolf::init_one(int i, int j)
+double PairCoulWolf::init_one(int /*i*/, int /*j*/)
 {
   return cut_coul;
 }
@@ -290,8 +290,8 @@ void PairCoulWolf::read_restart_settings(FILE *fp)
    only the pair part is calculated here
 ------------------------------------------------------------------------- */
 
-double PairCoulWolf::single(int i, int j, int itype, int jtype, double rsq,
-                            double factor_coul, double factor_lj,
+double PairCoulWolf::single(int i, int j, int /*itype*/, int /*jtype*/, double rsq,
+                            double factor_coul, double /*factor_lj*/,
                             double &fforce)
 {
   double r,prefactor;

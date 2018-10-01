@@ -28,7 +28,7 @@ PairREBOIntel::PairREBOIntel(LAMMPS *lmp) : PairAIREBOIntel(lmp) {}
    global settings
 ------------------------------------------------------------------------- */
 
-void PairREBOIntel::settings(int narg, char **arg)
+void PairREBOIntel::settings(int narg, char **/*arg*/)
 {
   if (narg != 0) error->all(FLERR,"Illegal pair_style command");
 
@@ -37,6 +37,6 @@ void PairREBOIntel::settings(int narg, char **arg)
   //
   // this one parameter for C-C interactions is different in REBO vs AIREBO
   // see Favata, Micheletti, Ryu, Pugno, Comp Phys Comm (2016)
-  
+
   PCCf_2_0 = 0.0;
 }

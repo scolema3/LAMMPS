@@ -11,9 +11,9 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
 #include "fix_halt.h"
 #include "update.h"
 #include "force.h"
@@ -175,7 +175,7 @@ void FixHalt::end_of_step()
   } else if (operation == NEQ) {
     if (attvalue == value) return;
   } else if (operation == XOR) {
-    if ((attvalue == 0.0 && value == 0.0) || 
+    if ((attvalue == 0.0 && value == 0.0) ||
         (attvalue != 0.0 && value != 0.0)) return;
   }
 
@@ -184,7 +184,7 @@ void FixHalt::end_of_step()
   // print message with ID of fix halt in case multiple instances
 
   char str[128];
-  sprintf(str,"Fix halt %s condition met on step %ld with value %g",
+  sprintf(str,"Fix halt %s condition met on step " BIGINT_FORMAT " with value %g",
           id,update->ntimestep,attvalue);
 
   if (eflag == HARD) {
@@ -251,7 +251,7 @@ double FixHalt::tlimit()
 
   if (cpu < value) {
     bigint elapsed = update->ntimestep - update->firststep;
-    bigint final = update->firststep + 
+    bigint final = update->firststep +
       static_cast<bigint> (tratio*value/cpu * elapsed);
     nextstep = (final/nevery)*nevery + nevery;
     if (nextstep == update->ntimestep) nextstep += nevery;

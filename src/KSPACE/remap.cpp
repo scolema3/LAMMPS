@@ -11,8 +11,8 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include "remap.h"
 
 #define PACK_DATA FFT_SCALAR
@@ -234,7 +234,7 @@ struct remap_plan_3d *remap_3d_create_plan(
   int in_klo, int in_khi,
   int out_ilo, int out_ihi, int out_jlo, int out_jhi,
   int out_klo, int out_khi,
-  int nqty, int permute, int memory, int precision, int usecollective)
+  int nqty, int permute, int memory, int /*precision*/, int usecollective)
 
 {
 

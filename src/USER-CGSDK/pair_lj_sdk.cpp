@@ -16,10 +16,10 @@
    This style is a simplified re-implementation of the CG/CMM pair style
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "pair_lj_sdk.h"
 #include "atom.h"
 #include "comm.h"
@@ -33,6 +33,7 @@
 #include "memory.h"
 #include "error.h"
 
+#define LMP_NEED_SDK_FIND_LJ_TYPE 1
 #include "lj_sdk_common.h"
 
 using namespace LAMMPS_NS;

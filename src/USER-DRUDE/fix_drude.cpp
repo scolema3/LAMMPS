@@ -11,8 +11,8 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 #include "fix_drude.h"
 #include "atom.h"
 #include "comm.h"
@@ -235,7 +235,7 @@ void FixDrude::grow_arrays(int nmax)
    copy values within local atom-based array
 ------------------------------------------------------------------------- */
 
-void FixDrude::copy_arrays(int i, int j, int delflag)
+void FixDrude::copy_arrays(int i, int j, int /*delflag*/)
 {
     drudeid[j] = drudeid[i];
 }

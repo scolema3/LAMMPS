@@ -15,8 +15,8 @@
    Contributing author: Naveen Michaud-Agrawal (Johns Hopkins U)
 ------------------------------------------------------------------------- */
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include "fix_recenter.h"
 #include "atom.h"
 #include "group.h"
@@ -149,7 +149,7 @@ void FixRecenter::init()
 
 /* ---------------------------------------------------------------------- */
 
-void FixRecenter::initial_integrate(int vflag)
+void FixRecenter::initial_integrate(int /*vflag*/)
 {
   // target COM
   // bounding box around domain works for both orthogonal and triclinic
@@ -211,7 +211,7 @@ void FixRecenter::initial_integrate(int vflag)
 
 /* ---------------------------------------------------------------------- */
 
-void FixRecenter::initial_integrate_respa(int vflag, int ilevel, int iloop)
+void FixRecenter::initial_integrate_respa(int vflag, int ilevel, int /*iloop*/)
 {
   // outermost level - operate recenter
   // all other levels - nothing

@@ -32,16 +32,16 @@
 ------------------------------------------------------------------------- */
 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
 #include "atom.h"
 #include "force.h"
 #include "update.h"
 #include "respa.h"
 #include "error.h"
 #include "group.h"
-#include <math.h>
 #include "input.h"
 #include "variable.h"
 #include "citeme.h"
@@ -229,7 +229,7 @@ void FixNVTManifoldRattle::init()
 
 
 
-void FixNVTManifoldRattle::setup(int vflag)
+void FixNVTManifoldRattle::setup(int /*vflag*/)
 {
   compute_temp_target();
 
@@ -371,7 +371,7 @@ void FixNVTManifoldRattle::nh_v_temp()
 
 
 // Most of this logic is based on fix_nh:
-void FixNVTManifoldRattle::initial_integrate(int vflag)
+void FixNVTManifoldRattle::initial_integrate(int /*vflag*/)
 {
 
   update_var_params();

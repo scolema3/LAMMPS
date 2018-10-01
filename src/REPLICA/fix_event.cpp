@@ -15,8 +15,8 @@
    Contributing author: Mike Brown (SNL), Aidan Thompson (SNL)
 ------------------------------------------------------------------------- */
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include "fix_event.h"
 #include "atom.h"
 #include "update.h"
@@ -241,7 +241,7 @@ void FixEvent::grow_arrays(int nmax)
    copy values within local atom-based array
 ------------------------------------------------------------------------- */
 
-void FixEvent::copy_arrays(int i, int j, int delflag)
+void FixEvent::copy_arrays(int i, int j, int /*delflag*/)
 {
   xevent[j][0] = xevent[i][0];
   xevent[j][1] = xevent[i][1];

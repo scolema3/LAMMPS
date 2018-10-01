@@ -38,7 +38,7 @@
 #define LMP_MANIFOLD_H
 
 #include "pointers.h"
-#include <math.h>
+#include <cmath>
 
 namespace LAMMPS_NS {
 namespace user_manifold {
@@ -61,7 +61,7 @@ namespace user_manifold {
 
     virtual const char *id() = 0;
 
-    virtual void set_atom_id( tagint a_id ){}
+    virtual void set_atom_id( tagint /*a_id*/ ){}
     virtual int nparams() = 0;
     // double *get_params(){ return params; };
 

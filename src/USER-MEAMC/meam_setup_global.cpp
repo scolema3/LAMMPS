@@ -1,9 +1,9 @@
 #include "meam.h"
-#include <math.h>
+#include <cmath>
 using namespace LAMMPS_NS;
 
 void
-MEAM::meam_setup_global(int nelt, lattice_t* lat, double* z, int* ielement, double* atwt, double* alpha,
+MEAM::meam_setup_global(int nelt, lattice_t* lat, double* z, int* ielement, double* /*atwt*/, double* alpha,
                         double* b0, double* b1, double* b2, double* b3, double* alat, double* esub,
                         double* asub, double* t0, double* t1, double* t2, double* t3, double* rozero,
                         int* ibar)

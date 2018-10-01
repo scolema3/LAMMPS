@@ -11,8 +11,8 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include "fix_nve_noforce.h"
 #include "atom.h"
 #include "update.h"
@@ -54,7 +54,7 @@ void FixNVENoforce::init()
 
 /* ---------------------------------------------------------------------- */
 
-void FixNVENoforce::initial_integrate(int vflag)
+void FixNVENoforce::initial_integrate(int /*vflag*/)
 {
   double **x = atom->x;
   double **v = atom->v;

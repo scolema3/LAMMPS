@@ -11,9 +11,9 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
 #include "fix_wall_region.h"
 #include "atom.h"
 #include "atom_vec.h"
@@ -66,6 +66,8 @@ FixWallRegion::FixWallRegion(LAMMPS *lmp, int narg, char **arg) :
   else if (strcmp(arg[4],"colloid") == 0) style = COLLOID;
   else if (strcmp(arg[4],"harmonic") == 0) style = HARMONIC;
   else error->all(FLERR,"Illegal fix wall/region command");
+
+  if (style != COLLOID) dynamic_group_allow = 1;
 
   epsilon = force->numeric(FLERR,arg[5]);
   sigma = force->numeric(FLERR,arg[6]);
@@ -285,7 +287,7 @@ void FixWallRegion::post_force(int vflag)
 
 /* ---------------------------------------------------------------------- */
 
-void FixWallRegion::post_force_respa(int vflag, int ilevel, int iloop)
+void FixWallRegion::post_force_respa(int vflag, int ilevel, int /*iloop*/)
 {
   if (ilevel == ilevel_respa) post_force(vflag);
 }
